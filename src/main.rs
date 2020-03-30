@@ -1,7 +1,11 @@
 mod widgets;
 
+extern crate alloc;
+
 // Write
 use std::io::{stdout, stdin, Error};
+
+use alloc::borrow::Cow;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -33,7 +37,7 @@ fn main() -> Result<(), Error> {
     }
     
     // text for the paragraph
-    let mut text = vec![Text::raw("")]; 
+    let mut text = vec![Text::raw(Cow::Owned(String::new()))]; 
 
     // give the drawing
     // simple name function a
@@ -58,11 +62,22 @@ fn main() -> Result<(), Error> {
             match event {
 
                 // update string
-                Event::Key(Key::Char(c)) => text[0] = Text::raw(c.to_string()),
+                Event::Key(Key::Char(c)) => match &mut text[0] {
+
+                    Text::Raw(Cow::Owned(w)) => {
+
+                        w.push_str(&c.to_string());
+                        text[0] = Text::Raw(Cow::Owned(w.clone()));
+
+                    },
+                    _ => {}
+
+                },
+
                 // exit search mode
                 Event::Key(Key::Esc) => searching = false,
 
-                _ => text[0] = Text::raw("")
+                _ => {}
 
             };
 

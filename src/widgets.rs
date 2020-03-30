@@ -28,7 +28,7 @@ pub fn draw_layout<Backend: tui::backend::Backend>(text: &Vec<tui::widgets::Text
             .block(Block::default().title("Paragraph")
             .borders(Borders::ALL))
             .style(Style::default().fg(Color::White))
-            .alignment(Alignment::Center)
+            .alignment(Alignment::Left)
             .wrap(true);
 
         f.render(&mut search, chunks[0]);
