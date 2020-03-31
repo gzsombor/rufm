@@ -1,6 +1,6 @@
 mod list;
 
-use tui::Terminal;
+use tui::terminal::Terminal;
 use tui::style::{Color, Style};
 use tui::layout::{Layout, Direction, Constraint, Alignment};
 use tui::widgets::{Text, Paragraph, Block, Borders, List};
@@ -41,7 +41,9 @@ pub fn draw_layout<Backend: tui::backend::Backend>(text: &Vec<tui::widgets::Text
 
         // create the list
         let mut list = List::new(items)
-            .block(Block::default().borders(Borders::ALL).title("List"))
+            .block(Block::default()
+            .borders(Borders::ALL)
+            .title("List"))
             .style(style);
         
         f.render(&mut list, chunks[1]);
