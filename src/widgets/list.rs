@@ -3,6 +3,7 @@
 use std::{
     io::Error,
     fs::read_dir,
+    env::set_current_dir,
     iter::Iterator
 };
 
@@ -30,18 +31,29 @@ pub struct FileList {
 
 impl FileList {
 
+    // get the element of the current directory
+    // and update self.content
+    fn get_dir() -> Vec<String> {
+        
+        read_dir("./")
+            .expect("Could not read directory!")
+            .map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path and put it in a list
+            .map(|x| {
+                let mut x = x.unwrap();
+                x.remove(0); x.remove(0); x // remove the ./ prefix
+            }).collect::<Vec<_>>() // .collect::<Result<Vec<_>, Error>>().unwrap()
+
+    }
+
     // creates a new file list with
     // the content of the current directory
     pub fn new() -> FileList {
 
         // get all elements off the cwd
-        let cwd_content = fs::read_dir("./")
-            .expect("Could not read directory!")
-            .map(|res| res.map(|e| e.path().to_str().unwrap().to_string()))
-            .collect::<Result<Vec<_>, Error>>().unwrap();
+        let cwd_content = FileList::get_dir();
 
         // create the hightlighting style
-        let style = Style::default().fg(Color::White).bg(Color::Black);
+        let style = Style::default().fg(Color::White).bg(Color::Blue);
         
         // return the FileList struct
         FileList {
@@ -57,37 +69,81 @@ impl FileList {
     // scrolls up in the list
     pub fn scroll_up(&mut self) {
 
-        self.current = self.current - 1;
+        if self.current != 0 {
+            self.current -= 1;
+        }
 
     }
 
     // scrolls down in the list
     pub fn scroll_down(&mut self) {
 
-        self.current = self.current + 1;
+        if self.current != self.content.len() - 1 {
+            self.current += 1;
+        }
 
     }
 
-    // 
-    pub fn select(&mut self) -> Vec<Text<'_>> {
+    // scrolls to the top of the list
+    pub fn scroll_top(&mut self) {
+        self.current = 0;
+    }
 
-        self.content.iter().enumerate().map(|(index, f)| {
+    // scrolls to the top of the list
+    pub fn scroll_bottom(&mut self) {
+        self.current = self.content.len();
+    }
 
-            if index == self.current {
+    // change one directory back
+    pub fn change_dir_back(&mut self) {
 
-                Text::Styled(
-                    Cow::Borrowed(f),
-                    self.highlight
-                )
-
-            } else {
-
-                Text::Raw(Cow::Borrowed(f))
-
-            }
-
-        }).collect()
+        // get all elements off the cwd
+        set_current_dir("..");
+        
+        // update the content
+        self.content = FileList::get_dir();
 
     }
+
+    // change directory to current selected element
+    pub fn change_dir_selected(&mut self) {
+
+        // current selected element
+        let path = &self.content[self.current];
+        set_current_dir(path.as_str());
+
+        // update the content
+        self.content = FileList::get_dir();
+    
+
+    }
+
+    // sort the files after the input string
+    pub fn sort(&mut self, key: String) {
+
+        self.content = self.content.iter().filter(|s| s.contains(&key)).map(|x| x.clone()).collect();
+
+    }
+
+//    pub fn select(&mut self) -> Vec<Text<'_>> {
+//
+//        self.content.iter().enumerate().map(|(index, f)| {
+//
+//            if index == self.current {
+//
+//                Text::Styled(
+//                    Cow::Borrowed(f),
+//                    self.highlight
+//                )
+//
+//            } else {
+//
+//                Text::Raw(Cow::Borrowed(f))
+//
+//            }
+//
+//        }).collect()
+//
+//    }
 
 }
