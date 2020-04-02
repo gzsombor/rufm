@@ -1,22 +1,14 @@
 // use fs to access
 // the filesystem and read from a directory
 use std::{
-    io::Error,
     fs::read_dir,
     env::set_current_dir,
     iter::Iterator
 };
 
-// use alloc for Cows
-// (Needed for tui::widgets::Text creation)
-extern crate alloc;
-use alloc::borrow::Cow;
-
 // style and color selected row,
 // display text
 use tui::style::{Color, Style};
-use tui::widgets::Text;
-
 
 // FileList struct
 // Gets used by draw_layout
@@ -43,6 +35,15 @@ impl FileList {
                 x.remove(0); x.remove(0); x // remove the ./ prefix
             }).collect::<Vec<_>>() // .collect::<Result<Vec<_>, Error>>().unwrap()
 
+    }
+
+    // update the list
+    fn update(&mut self) {
+        if FileList::get_dir().is_empty() {
+            self.content = vec!["Nothing found!".to_string()];
+        } else {
+            self.content = FileList::get_dir();
+        }
     }
 
     // creates a new file list with
@@ -101,7 +102,7 @@ impl FileList {
         set_current_dir("..");
         
         // update the content
-        self.content = FileList::get_dir();
+        self.update();
 
     }
 
@@ -113,7 +114,7 @@ impl FileList {
         set_current_dir(path.as_str());
 
         // update the content
-        self.content = FileList::get_dir();
+        self.update();
     
 
     }
@@ -122,6 +123,11 @@ impl FileList {
     pub fn sort(&mut self, key: String) {
 
         self.content = self.content.iter().filter(|s| s.contains(&key)).map(|x| x.clone()).collect();
+        if self.content.is_empty() {
+            self.content = vec!["Nothing found!".to_string()];
+        }
+
+        println!("{}", self.content.len());
 
     }
 

@@ -38,14 +38,26 @@ fn main() -> Result<(), Error> {
     
     // text for the paragraph
     let mut text = vec![Text::raw(Cow::Owned(String::new()))]; 
-
     // file list
-    let mut filelist = widgets::create_rows();
+    let mut filelist = widgets::FileList::new();
+    // text for preview
+    let mut prev = widgets::Preview::new();
+    // current selected element
+    // possible values:
+    //   - 0 -> search
+    //   - 1 -> files
+    let mut selected = 1;
+
+    let toggle_select = |s: i8| {
+        if s == 1 {
+            0
+        } else { 1 }
+    };
 
     // give the drawing
     // simple name function a
     let dl = widgets::draw_layout;
-    dl(&text, &filelist, &mut terminal);
+    dl(selected, &mut prev, &text, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -70,9 +82,8 @@ fn main() -> Result<(), Error> {
                         Text::Raw(Cow::Owned(w)) => w.clone(),
                         _ => "".to_string() 
                     }; filelist.sort(search_string);
-                 
-
-                    dl(&text, &filelist, &mut terminal);
+                    searching = false;
+                    selected = 1;
                 }
 
                 // update string
@@ -86,17 +97,26 @@ fn main() -> Result<(), Error> {
                 },
 
                 // exit search mode
-                Event::Key(Key::Esc) => searching = false,
+                Event::Key(Key::Esc) => {
+                    searching = false;
+                    selected = 1;
+                },
 
                 // remove last char
-                Event::Key(Key::Backspace) => {},
+                Event::Key(Key::Backspace) => match &mut text[0] {
+                    Text::Raw(Cow::Owned(w)) => {
+                        w.pop();
+                        text[0] = Text::Raw(Cow::Owned(w.clone()));
+                    },
+                    _ => {}
+                },
 
                 _ => {}
 
             };
 
             // update screen
-            dl(&text, &filelist, &mut terminal);
+            dl(selected, &mut prev, &text, &filelist, &mut terminal);
             continue;
 
         } 
@@ -120,40 +140,38 @@ fn main() -> Result<(), Error> {
             // activate searching mode
             Event::Key(Key::Char('/')) => {
                 searching = true;
+                selected = 0;
                 text[0] = Text::Raw(Cow::Owned("".to_string()));
             },
 
             // scroll down
             Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
                 filelist.scroll_down();
-                dl(&text, &filelist, &mut terminal);
             },
             
             // scroll up
             Event::Key(Key::Char('k')) | Event::Key(Key::Up) => {
                 filelist.scroll_up();
-                dl(&text, &filelist, &mut terminal);
             },
 
             // change one dir back
             Event::Key(Key::Char('h')) | Event::Key(Key::Left) => {
                 filelist.change_dir_back();
                 filelist.scroll_top();
-
-                dl(&text, &filelist, &mut terminal);
             },
 
             // change one dir back
             Event::Key(Key::Char('l')) | Event::Key(Key::Right) => {
                 filelist.change_dir_selected();
                 filelist.scroll_top();
-
-                dl(&text, &filelist, &mut terminal);
             },
 
             _ => {}
 
         };
+
+        // draw the layout
+        dl(selected, &mut prev, &text, &filelist, &mut terminal);
         
     }
 
