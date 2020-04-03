@@ -51,7 +51,7 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
 
 
         // layout
-        let chunks_top = Layout::default()
+        let chunks_vert = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([
@@ -60,6 +60,15 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
                 ].as_ref()
             ).split(term_size);
 
+        let chunks_top = Layout::default()
+            .direction(Direction::Horizontal)
+            .margin(0)
+            .constraints([
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            ).split(chunks_vert[0]);
+
         let chunks_bottom = Layout::default()
             .direction(Direction::Horizontal)
             .margin(0)
@@ -67,9 +76,9 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
                     Constraint::Percentage(50),
                     Constraint::Percentage(50)
                 ].as_ref()
-            ).split(chunks_top[1]);
+            ).split(chunks_vert[1]);
 
-        let chunks_right = Layout::default()
+        let chunks_bottom_right = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([
@@ -87,6 +96,14 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
             .alignment(Alignment::Left)
             .wrap(true);
 
+
+        // input paragraph
+        let cust_text = vec![Text::Raw(Cow::Owned("Moin".to_string()))];
+        let mut input = Paragraph::new(cust_text.iter())
+            .block(custom_block.title("Input"))
+            .style(Style::default().fg(Color::White))
+            .alignment(Alignment::Left)
+            .wrap(true);
 
       
         // select the current element
@@ -150,9 +167,10 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
        
         // render all elements in their chunk
         f.render(&mut search, chunks_top[0]);
+        f.render(&mut input, chunks_top[1]);
         f.render(&mut filelist_normal, chunks_bottom[0]);
-        f.render(&mut preview, chunks_right[0]);
-        f.render(&mut favourites_normal, chunks_right[1]);
+        f.render(&mut preview, chunks_bottom_right[0]);
+        f.render(&mut favourites_normal, chunks_bottom_right[1]);
 
 
         // color the selected list
@@ -173,7 +191,7 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
 
             Selectable::Favourites => {
        
-                f.render(&mut favourites_colored, chunks_right[1]);
+                f.render(&mut favourites_colored, chunks_bottom_right[1]);
 
             },
 
