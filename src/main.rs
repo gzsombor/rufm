@@ -198,6 +198,12 @@ fn main() -> Result<(), Error> {
                     filelist.scroll_top();
                     filelist.update();
                 }
+
+                // exit search mode
+                Event::Key(Key::Esc) => {
+                    selected = Selectable::FileList;
+                },
+
 	
 	            _ => {}
 
