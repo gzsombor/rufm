@@ -7,6 +7,9 @@ use tui::widgets::{
     Text
 };
 
+extern crate alloc;
+use alloc::borrow::Cow;
+
 pub struct Preview {
 
     pub filename: String, // the name of the previewed file
@@ -49,7 +52,7 @@ impl Preview {
 
     pub fn get_content(&mut self) -> Vec<Text> {
         // make every string to an Text::raw element
-        vec![Text::raw(self.content.clone())]
+        vec![Text::Raw(Cow::Owned(self.content.clone()))]
     }
 
 }

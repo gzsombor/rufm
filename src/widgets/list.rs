@@ -32,13 +32,16 @@ impl FileList {
             .map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path and put it in a list
             .map(|x| {
                 let mut x = x.unwrap();
-                x.remove(0); x.remove(0); x // remove the ./ prefix
+                if x.len() > 2 {
+                    x.remove(0); x.remove(0); // remove the ./ prefix
+
+                }; x
             }).collect::<Vec<_>>() // .collect::<Result<Vec<_>, Error>>().unwrap()
 
     }
 
     // update the list
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         if FileList::get_dir().is_empty() {
             self.content = vec!["Nothing found!".to_string()];
         } else {
@@ -122,12 +125,29 @@ impl FileList {
     // sort the files after the input string
     pub fn sort(&mut self, key: String) {
 
-        self.content = self.content.iter().filter(|s| s.contains(&key)).map(|x| x.clone()).collect();
-        if self.content.is_empty() {
-            self.content = vec!["Nothing found!".to_string()];
-        }
+        if key.len() == 0 { return; }
+            
+        // empty the whole list
+        self.content = Vec::new();
+        // get all files of the cwd
+        let current_filelist = FileList::get_dir();
 
-        println!("{}", self.content.len());
+        // loop and remove the last i characters
+        for i in 0..key.len() {
+          
+            // create new key
+            let new_key = &key[0..key.len() - i];
+            for n in &current_filelist {
+                if n.contains(&new_key.to_lowercase()) || n.contains(&new_key.to_uppercase()) && !self.content.contains(n){
+                    self.content.push(n.clone());
+                }
+            }
+
+        }
+         
+        if self.content.is_empty() {
+             self.content = vec!["Nothing found!".to_string()];
+        }
 
     }
 

@@ -1,11 +1,12 @@
 mod widgets;
-
 extern crate alloc;
 
 // Write
 use std::io::{stdout, stdin, Error};
 
 use alloc::borrow::Cow;
+
+use widgets::Selectable;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -17,6 +18,9 @@ use tui::backend::{TermionBackend};
 
 use tui::widgets::Text;
 
+use std::env::current_dir;
+
+// entry point
 fn main() -> Result<(), Error> {
     
     // creating the terminal
@@ -25,15 +29,11 @@ fn main() -> Result<(), Error> {
     let mut terminal = Terminal::new(backend)?;
 
     match terminal.clear() {
-        
         Ok(_) => {},
         Err(e) => {
-            
             println!("Failed to clear terminal: {}", e);
             return Err(e);
-
         }
-    
     }
     
     // text for the paragraph
@@ -42,22 +42,18 @@ fn main() -> Result<(), Error> {
     let mut filelist = widgets::FileList::new();
     // text for preview
     let mut prev = widgets::Preview::new();
+    // favourties tab
+    let mut favourites = widgets::Favourites::new();
     // current selected element
     // possible values:
     //   - 0 -> search
     //   - 1 -> files
-    let mut selected = 1;
-
-    let toggle_select = |s: i8| {
-        if s == 1 {
-            0
-        } else { 1 }
-    };
+    let mut selected = Selectable::FileList;
 
     // give the drawing
     // simple name function a
     let dl = widgets::draw_layout;
-    dl(selected, &mut prev, &text, &filelist, &mut terminal);
+    dl(&selected, &mut prev, &favourites, &text, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -70,20 +66,20 @@ fn main() -> Result<(), Error> {
 
         let event = evt.unwrap();
 
-        // searching mode 
-        // -> update paragraph text
-        if searching {
+        // match events
+        // specific to selected item
+        match selected {
 
-            match event {
+            Selectable::Search => match event {
 
                 // sort the files -> end the search input
                 Event::Key(Key::Char('\n')) => {
                     let search_string = match &text[0] {
                         Text::Raw(Cow::Owned(w)) => w.clone(),
                         _ => "".to_string() 
-                    }; filelist.sort(search_string);
-                    searching = false;
-                    selected = 1;
+                    }; filelist.scroll_top();
+                    filelist.sort(search_string);
+                    selected = Selectable::FileList;
                 }
 
                 // update string
@@ -98,8 +94,7 @@ fn main() -> Result<(), Error> {
 
                 // exit search mode
                 Event::Key(Key::Esc) => {
-                    searching = false;
-                    selected = 1;
+                    selected = Selectable::FileList;
                 },
 
                 // remove last char
@@ -113,65 +108,105 @@ fn main() -> Result<(), Error> {
 
                 _ => {}
 
-            };
+            },
 
-            // update screen
-            dl(selected, &mut prev, &text, &filelist, &mut terminal);
-            continue;
-
-        } 
-
-        // parse
-        // event to function
-        match event {
-            
-            // quit
-            Event::Key(Key::Char('q')) => {
-                match terminal.clear() {
-                    Ok(_) => {},
-                    Err(e) => {
-                        println!("Failed to clear terminal: {}", e);
-                        return Err(e);
-                    }
+	        Selectable::FileList => match event {
+	            
+	            // quit
+	            Event::Key(Key::Char('q')) => {
+	                match terminal.clear() {
+	                    Ok(_) => {},
+	                    Err(e) => {
+	                        println!("Failed to clear terminal: {}", e);
+	                        return Err(e);
+	                    }
+	                }
+	                break;
+	            },
+	
+	            // activate searching mode
+	            Event::Key(Key::Char('/')) => {
+	                selected = Selectable::Search;
+	                text[0] = Text::Raw(Cow::Owned("".to_string()));
+	            },
+	
+	            // scroll down
+	            Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
+	                filelist.scroll_down();
+	            },
+	            
+	            // scroll up
+	            Event::Key(Key::Char('k')) | Event::Key(Key::Up) => {
+	                filelist.scroll_up();
+	            },
+	
+	            // change one dir back
+	            Event::Key(Key::Char('h')) | Event::Key(Key::Left) => {
+	                filelist.change_dir_back();
+	                filelist.scroll_top();
+	            },
+	
+	            // change one dir back
+	            Event::Key(Key::Char('l')) | Event::Key(Key::Right) => {
+	                filelist.change_dir_selected();
+	                filelist.scroll_top();
+	            },
+	
+                // change to favourites
+                Event::Key(Key::Char('F')) => {
+                    selected = Selectable::Favourites;
                 }
-                break;
-            },
 
-            // activate searching mode
-            Event::Key(Key::Char('/')) => {
-                searching = true;
-                selected = 0;
-                text[0] = Text::Raw(Cow::Owned("".to_string()));
-            },
-
-            // scroll down
-            Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
-                filelist.scroll_down();
-            },
+	            _ => {}
+	
+	        },
             
-            // scroll up
-            Event::Key(Key::Char('k')) | Event::Key(Key::Up) => {
-                filelist.scroll_up();
-            },
+            Selectable::Favourites => match event {
+                
+                // quit
+	            Event::Key(Key::Char('q')) => {
+	                match terminal.clear() {
+	                    Ok(_) => {},
+	                    Err(e) => {
+	                        println!("Failed to clear terminal: {}", e);
+	                        return Err(e);
+	                    }
+	                }
+	                break;
+	            },
 
-            // change one dir back
-            Event::Key(Key::Char('h')) | Event::Key(Key::Left) => {
-                filelist.change_dir_back();
-                filelist.scroll_top();
-            },
+                // activate searching mode
+	            Event::Key(Key::Char('/')) => {
+	                selected = Selectable::Search;
+	                text[0] = Text::Raw(Cow::Owned("".to_string()));
+	            },
+	
+	            // scroll down
+	            Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
+	                favourites.scroll_down();
+	            },
+	            
+	            // scroll up
+	            Event::Key(Key::Char('k')) | Event::Key(Key::Up) => {
+	                favourites.scroll_up();
+	            },
 
-            // change one dir back
-            Event::Key(Key::Char('l')) | Event::Key(Key::Right) => {
-                filelist.change_dir_selected();
-                filelist.scroll_top();
-            },
+                // select the favourite
+                Event::Key(Key::Char('\n')) => {
+                    selected = Selectable::FileList;
+                    favourites.change_dir_selected(); 
+                    filelist.scroll_top();
+                    filelist.update();
+                }
+	
+	            _ => {}
 
-            _ => {}
+            }
 
-        };
+        }
 
         // draw the layout
-        dl(selected, &mut prev, &text, &filelist, &mut terminal);
+        dl(&selected, &mut prev, &favourites, &text, &filelist, &mut terminal);
         
     }
 
