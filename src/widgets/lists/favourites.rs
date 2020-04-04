@@ -5,6 +5,9 @@ use std::{
     env::current_dir, iter::Iterator
 };
 
+// import the needed trait
+use crate::widgets::traits::ScrollableList; 
+
 // style and color selected row,
 // display text
 use tui::style::{Color, Style};
@@ -49,34 +52,6 @@ impl Favourites {
     
     }
 
-    // scrolls up in the list
-    pub fn scroll_up(&mut self) {
-
-        if self.current != 0 {
-            self.current -= 1;
-        }
-
-    }
-
-    // scrolls down in the list
-    pub fn scroll_down(&mut self) {
-
-        if self.current != self.names.len() - 1 {
-            self.current += 1;
-        }
-
-    }
-
-    // scrolls to the top of the list
-    pub fn scroll_top(&mut self) {
-        self.current = 0;
-    }
-
-    // scrolls to the top of the list
-    pub fn scroll_bottom(&mut self) {
-        self.current = self.names.len() - 1;
-    }
-
     // change directory to current selected element
     pub fn change_dir_selected(&mut self) {
 
@@ -106,5 +81,53 @@ impl Favourites {
 //        }).collect()
 //
 //    }
+
+}
+
+impl ScrollableList for Favourites {
+ 
+//    // scrolls up in the list
+//    fn scroll_up(&mut self) {
+//
+//        if self.current != 0 {
+//            self.current -= 1;
+//        }
+//
+//    }
+//
+//    // scrolls down in the list
+//    fn scroll_down(&mut self) {
+//
+//        if self.current != self.names.len() - 1 {
+//            self.current += 1;
+//        }
+//
+//    }
+//
+//    // scrolls to the top of the list
+//    fn scroll_top(&mut self) {
+//        self.current = 0;
+//    }
+//
+//    // scrolls to the top of the list
+//    fn scroll_bottom(&mut self) {
+//        self.current = self.names.len() - 1;
+//    }
+
+    fn get_len(&self) -> usize {
+        self.names.len()
+    }
+
+    fn get_current(&self) -> usize {
+        self.current
+    }
+
+    fn set_current(&mut self, new: usize) {
+        self.current = new;
+    }
+
+    fn items(&self) -> (Vec<String>, usize, Style) {
+        (self.names.clone(), self.current, self.highlight)
+    }
 
 }

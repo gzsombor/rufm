@@ -1,12 +1,13 @@
 mod widgets;
+
 extern crate alloc;
+use alloc::borrow::Cow;
 
 // Write
 use std::io::{stdout, stdin, Error};
 
-use alloc::borrow::Cow;
-
 use widgets::Selectable;
+use widgets::traits::ScrollableList;
 
 // backend
 use termion::raw::IntoRawMode;

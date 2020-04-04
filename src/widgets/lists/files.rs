@@ -1,10 +1,13 @@
-)// use fs to access
+// use fs to access
 // the filesystem and read from a directory
 use std::{
     fs::read_dir,
     env::set_current_dir,
     iter::Iterator
 };
+
+// import the needed trait
+use crate::widgets::traits::ScrollableList; 
 
 // style and color selected row,
 // display text
@@ -40,15 +43,6 @@ impl FileList {
 
     }
 
-    // update the list
-    pub fn update(&mut self) {
-        if FileList::get_dir().is_empty() {
-            self.content = vec!["Nothing found!".to_string()];
-        } else {
-            self.content = FileList::get_dir();
-        }
-    }
-
     // creates a new file list with
     // the content of the current directory
     pub fn new() -> FileList {
@@ -70,32 +64,13 @@ impl FileList {
     
     }
 
-    // scrolls up in the list
-    pub fn scroll_up(&mut self) {
-
-        if self.current != 0 {
-            self.current -= 1;
+    // update the list
+    pub fn update(&mut self) {
+        if FileList::get_dir().is_empty() {
+            self.content = vec!["Nothing found!".to_string()];
+        } else {
+            self.content = FileList::get_dir();
         }
-
-    }
-
-    // scrolls down in the list
-    pub fn scroll_down(&mut self) {
-
-        if self.current != self.content.len() - 1 {
-            self.current += 1;
-        }
-
-    }
-
-    // scrolls to the top of the list
-    pub fn scroll_top(&mut self) {
-        self.current = 0;
-    }
-
-    // scrolls to the top of the list
-    pub fn scroll_bottom(&mut self) {
-        self.current = self.content.len();
     }
 
     // change one directory back
@@ -171,5 +146,53 @@ impl FileList {
 //        }).collect()
 //
 //    }
+
+}
+
+impl ScrollableList for FileList {
+
+//    // scrolls up in the list
+//    fn scroll_up(&mut self) {
+//
+//        if self.current != 0 {
+//            self.current -= 1;
+//        }
+//
+//    }
+//
+//    // scrolls down in the list
+//    fn scroll_down(&mut self) {
+//
+//        if self.current != self.content.len() - 1 {
+//            self.current += 1;
+//        }
+//
+//    }
+//
+//    // scrolls to the top of the list
+//    fn scroll_top(&mut self) {
+//        self.current = 0;
+//    }
+//
+//    // scrolls to the top of the list
+//    fn scroll_bottom(&mut self) {
+//        self.current = self.content.len();
+//    }
+
+    fn get_len(&self) -> usize {
+        self.content.len()
+    }
+
+    fn get_current(&self) -> usize {
+        self.current
+    }
+
+    fn set_current(&mut self, new: usize) {
+        self.current = new;
+    }
+
+    fn items(&self) -> (Vec<String>, usize, Style) {
+        (self.content.clone(), self.current, self.highlight)
+    }
 
 }

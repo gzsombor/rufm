@@ -1,17 +1,35 @@
+/* Principle:
+ *
+ * Widgets make out the UI.
+ * Current widgets:
+ *
+ *  - Search
+ *  - Preview
+ *  - FileList
+ *  - Favourites
+ *
+ * All widgets are either Lists, through which you can scroll,
+ * or Parapgraphs, which display text (editable or not).
+ * Widgets are normally displayed through a struct. These
+ * are all stored in the widgets folder and get created by main.rs
+ * in the main function. So they have to be publicly imported.
+ */
+
 // pub to access it
 // from main.rs
-pub mod list;
-pub mod preview;
-pub mod favourites;
+pub mod lists;
+pub mod paragraphs;
+pub mod traits;
 
 extern crate alloc;
 use alloc::borrow::Cow;
 
 // pub to access it
 // from main.rs
-pub use list::FileList;
-pub use preview::Preview;
-pub use favourites::Favourites;
+pub use lists::files::FileList;
+pub use lists::favourites::Favourites;
+pub use paragraphs::preview::Preview;
+pub use traits::ScrollableList;
 
 use tui::terminal::Terminal;
 use tui::backend::Backend;
@@ -20,8 +38,9 @@ use tui::style::{Color, Style};
 use tui::layout::{Layout, Direction, Constraint, Alignment};
 use tui::widgets::{Text, Paragraph, Block, Borders, List};
 
+
 // widgets that can
-// be selected and scrolled
+// be selected -> scrollable or editable
 pub enum Selectable {
 
     Search,
@@ -105,29 +124,14 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
             .alignment(Alignment::Left)
             .wrap(true);
 
-      
-        // select the current element
-	    let fl_items_colored = Box::new(fl.content.iter().enumerate().map(|(index, file)| {
-		    if index == fl.current {
-	            Text::Styled(
-	                Cow::Borrowed(file),
-		            fl.highlight
-		        )
-		    } else {
-		        Text::Raw(Cow::Borrowed(file))
-		    }
-	    }));
-
-        // map the content without highlighting
-        let fl_items_normal = fl.content.iter()
-            .map(|x| Text::Raw(Cow::Owned(x.clone())));
+     
 
         // create the lists
-        let mut filelist_normal = List::new(fl_items_normal)
+        let mut filelist_normal = List::new(fl.create_normal().into_iter())
             .block(custom_block.title("Files"));
 
         // create the lists
-        let mut filelist_colored = List::new(fl_items_colored)
+        let mut filelist_colored = List::new(fl.create_colored().into_iter())
             .block(custom_block.title("Files")
             .border_style(custom_border_style));
 
@@ -142,29 +146,15 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
             .wrap(true);
 
 
-        // select the current element
-	    let favs_items_colored = favs.names.iter().enumerate().map(|(index, name)| {
-		    if index == favs.current {
-	            Text::Styled(
-	                Cow::Borrowed(name),
-		            favs.highlight
-		        )
-		    } else {
-		        Text::Raw(Cow::Borrowed(name))
-		    }
-	    });
 
-        // map the names without highlighting
-        let favs_items_normal = favs.names.iter()
-            .map(|x| Text::Raw(Cow::Owned(x.clone())));
-
-        let mut favourites_normal = List::new(favs_items_normal) 
+        let mut favourites_normal = List::new(favs.create_colored().into_iter()) 
             .block(custom_block.title("Favourites"));
-       
-        let mut favourites_colored = List::new(favs_items_colored) 
+     
+        let mut favourites_colored = List::new(favs.create_colored().into_iter())
             .block(custom_block.title("Favourites"));
 
-       
+
+
         // render all elements in their chunk
         f.render(&mut search, chunks_top[0]);
         f.render(&mut input, chunks_top[1]);
@@ -177,22 +167,16 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
         match selected {
 
             Selectable::Search => {
-
                 search = search.block(custom_block.title("Search").border_style(custom_border_style));
                 f.render(&mut search, chunks_top[0]);
-
             },
 
             Selectable::FileList => {
-
                 f.render(&mut filelist_colored, chunks_bottom[0]);
-
             },
 
             Selectable::Favourites => {
-       
                 f.render(&mut favourites_colored, chunks_bottom_right[1]);
-
             },
 
             _ => {}
