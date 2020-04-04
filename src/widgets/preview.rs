@@ -1,5 +1,7 @@
 use std::{
     fs::File,
+    fs::read_dir,
+    path::Path,
     io::prelude::*
 };
 
@@ -19,6 +21,23 @@ pub struct Preview {
 
 impl Preview {
 
+    // get the element of the current directory
+    // and update self.content
+    fn get_dir(name: String) -> Vec<String> {
+        
+        read_dir("./".to_string() + &name)
+            .expect("Could not read directory!")
+            .map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path and put it in a list
+            .map(|x| {
+                let mut x = x.unwrap();
+                if x.len() > 2 {
+                    x.remove(0); x.remove(0); // remove the ./ prefix
+
+                }; x
+            }).collect::<Vec<_>>() // .collect::<Result<Vec<_>, Error>>().unwrap()
+
+    }
+
     // create a new empty struct
     pub fn new() -> Preview {
         Preview {
@@ -33,6 +52,19 @@ impl Preview {
     }
 
     pub fn update_content(&mut self) {
+        // clear the string
+        self.content = String::new();
+        // check if the filename points to
+        // a directory of a file
+        if Path::new(&self.filename).is_dir() {
+            let dir_content = Preview::get_dir(self.filename.clone());
+            for i in dir_content {
+                self.content.push_str(&(i + "\n"));
+            }
+
+            return;
+        } 
+        
         // open file
         let mut file = File::open
             (self.filename.clone());
@@ -41,7 +73,6 @@ impl Preview {
         match file {
             Ok(mut f) => {
                 // parse content into content variable
-                self.content = String::new();
                 f.read_to_string(&mut self.content);
             },
             Err(e) => {

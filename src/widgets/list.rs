@@ -1,4 +1,4 @@
-// use fs to access
+)// use fs to access
 // the filesystem and read from a directory
 use std::{
     fs::read_dir,
@@ -36,7 +36,7 @@ impl FileList {
                     x.remove(0); x.remove(0); // remove the ./ prefix
 
                 }; x
-            }).collect::<Vec<_>>() // .collect::<Result<Vec<_>, Error>>().unwrap()
+            }).collect::<Vec<_>>()
 
     }
 
