@@ -8,6 +8,7 @@ use std::io::{stdout, stdin, Error};
 
 use widgets::Selectable;
 use widgets::traits::ScrollableList;
+use widgets::traits::CustomParagraph;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -20,6 +21,7 @@ use tui::backend::{TermionBackend};
 use tui::widgets::Text;
 
 use std::env::current_dir;
+
 
 // entry point
 fn main() -> Result<(), Error> {
@@ -38,7 +40,7 @@ fn main() -> Result<(), Error> {
     }
     
     // text for the paragraph
-    let mut text = vec![Text::raw(Cow::Owned(String::new()))]; 
+    let mut search = widgets::Search::new();
     // file list
     let mut filelist = widgets::FileList::new();
     // text for preview
@@ -46,15 +48,12 @@ fn main() -> Result<(), Error> {
     // favourties tab
     let mut favourites = widgets::Favourites::new();
     // current selected element
-    // possible values:
-    //   - 0 -> search
-    //   - 1 -> files
     let mut selected = Selectable::FileList;
 
     // give the drawing
     // simple name function a
     let dl = widgets::draw_layout;
-    dl(&selected, &mut prev, &favourites, &text, &filelist, &mut terminal);
+    dl(&selected, &mut prev, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -75,23 +74,13 @@ fn main() -> Result<(), Error> {
 
                 // sort the files -> end the search input
                 Event::Key(Key::Char('\n')) => {
-                    let search_string = match &text[0] {
-                        Text::Raw(Cow::Owned(w)) => w.clone(),
-                        _ => "".to_string() 
-                    }; filelist.scroll_top();
-                    filelist.sort(search_string);
+                    filelist.scroll_top();
+                    filelist.sort(search.items());
                     selected = Selectable::FileList;
                 }
 
-                // update string
-                Event::Key(Key::Char(c)) => match &mut text[0] {
-                    Text::Raw(Cow::Owned(w)) => {
-                        // update the text
-                        w.push_str(&c.to_string());
-                        text[0] = Text::Raw(Cow::Owned(w.clone()));
-                    },
-                    _ => {}
-                },
+                // add the char to the string
+                Event::Key(Key::Char(c)) => search.add(c.to_string()),
 
                 // exit search mode
                 Event::Key(Key::Esc) => {
@@ -99,13 +88,7 @@ fn main() -> Result<(), Error> {
                 },
 
                 // remove last char
-                Event::Key(Key::Backspace) => match &mut text[0] {
-                    Text::Raw(Cow::Owned(w)) => {
-                        w.pop();
-                        text[0] = Text::Raw(Cow::Owned(w.clone()));
-                    },
-                    _ => {}
-                },
+                Event::Key(Key::Backspace) => search.delete(),
 
                 _ => {}
 
@@ -128,7 +111,7 @@ fn main() -> Result<(), Error> {
 	            // activate searching mode
 	            Event::Key(Key::Char('/')) => {
 	                selected = Selectable::Search;
-	                text[0] = Text::Raw(Cow::Owned("".to_string()));
+                    search.clear();
 	            },
 	
 	            // scroll down
@@ -179,7 +162,7 @@ fn main() -> Result<(), Error> {
                 // activate searching mode
 	            Event::Key(Key::Char('/')) => {
 	                selected = Selectable::Search;
-	                text[0] = Text::Raw(Cow::Owned("".to_string()));
+                    search.clear();
 	            },
 	
 	            // scroll down
@@ -205,7 +188,6 @@ fn main() -> Result<(), Error> {
                     selected = Selectable::FileList;
                 },
 
-	
 	            _ => {}
 
             }
@@ -213,7 +195,7 @@ fn main() -> Result<(), Error> {
         }
 
         // draw the layout
-        dl(&selected, &mut prev, &favourites, &text, &filelist, &mut terminal);
+        dl(&selected, &mut prev, &favourites, &search, &filelist, &mut terminal);
         
     }
 

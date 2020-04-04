@@ -16,8 +16,7 @@ pub trait ScrollableList {
 
     fn get_len(&self) -> usize;
     fn get_current(&self) -> usize;
-    fn set_current(&mut self, new: usize);
-
+    fn set_current(&mut self, new: usize); 
     // scrolls up in the list
     fn scroll_up(&mut self) {
 
@@ -92,4 +91,23 @@ pub trait ScrollableList {
 
 }
 
-pub trait CustomParagraph {}
+// gets implemented on all paragraphs
+pub trait CustomParagraph {
+
+    // return all important items
+    // for displaying
+    fn items(&self) -> String;
+
+    fn display_normal(&self) -> Vec<Text> {
+
+        // get all important items
+        let content = self.items();
+        
+        // create a vector out of
+        // the input string which can 
+        // be used with Paragraph::new()
+        vec![Text::Raw(Cow::Owned(content))]
+
+    }
+
+}

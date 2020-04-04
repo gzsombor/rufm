@@ -28,8 +28,12 @@ use alloc::borrow::Cow;
 // from main.rs
 pub use lists::files::FileList;
 pub use lists::favourites::Favourites;
+
 pub use paragraphs::preview::Preview;
+pub use paragraphs::search::Search;
+
 pub use traits::ScrollableList;
+pub use traits::CustomParagraph;
 
 use tui::terminal::Terminal;
 use tui::backend::Backend;
@@ -54,7 +58,7 @@ pub enum Selectable {
 // parameters are a little messed up
 pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
     (selected: &Selectable, preview: &mut Preview, favs: &Favourites,
-     text: &Vec<Text>, fl: &FileList, terminal: &mut Terminal<B>) {
+     search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
 
     // update the preview
     preview.set_filename(fl.content[fl.current].clone());
@@ -108,8 +112,10 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
 
 
 
+        let search_display = search.display_normal();
+
         // search paragraph
-        let mut search = Paragraph::new(text.iter())
+        let mut search_pgraph = Paragraph::new(search_display.iter())
             .block(custom_block.title("Search"))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
@@ -137,9 +143,10 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
 
 
 
-        // preview paragraph
-        let prev_content = preview.get_content();
-        let mut preview = Paragraph::new(prev_content.iter())
+        let preview_display = preview.display_normal();
+
+        // preview paragraph 
+        let mut preview_pgraph = Paragraph::new(preview_display.iter())
             .block(custom_block.title("Preview"))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
@@ -147,7 +154,7 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
 
 
 
-        let mut favourites_normal = List::new(favs.create_colored().into_iter()) 
+        let mut favourites_normal = List::new(favs.create_normal().into_iter()) 
             .block(custom_block.title("Favourites"));
      
         let mut favourites_colored = List::new(favs.create_colored().into_iter())
@@ -156,10 +163,10 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
 
 
         // render all elements in their chunk
-        f.render(&mut search, chunks_top[0]);
+        f.render(&mut search_pgraph, chunks_top[0]);
         f.render(&mut input, chunks_top[1]);
         f.render(&mut filelist_normal, chunks_bottom[0]);
-        f.render(&mut preview, chunks_bottom_right[0]);
+        f.render(&mut preview_pgraph, chunks_bottom_right[0]);
         f.render(&mut favourites_normal, chunks_bottom_right[1]);
 
 
@@ -167,8 +174,8 @@ pub fn draw_layout<B: Backend> // <Backend: tui::backend::Backend>
         match selected {
 
             Selectable::Search => {
-                search = search.block(custom_block.title("Search").border_style(custom_border_style));
-                f.render(&mut search, chunks_top[0]);
+                search_pgraph = search_pgraph.block(custom_block.title("Search").border_style(custom_border_style));
+                f.render(&mut search_pgraph, chunks_top[0]);
             },
 
             Selectable::FileList => {

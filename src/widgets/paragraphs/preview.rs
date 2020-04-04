@@ -12,6 +12,9 @@ use tui::widgets::{
 extern crate alloc;
 use alloc::borrow::Cow;
 
+// import the needed trait
+use crate::widgets::traits::CustomParagraph; 
+
 pub struct Preview {
 
     pub filename: String, // the name of the previewed file
@@ -81,9 +84,12 @@ impl Preview {
         }
     }
 
-    pub fn get_content(&mut self) -> Vec<Text> {
-        // make every string to an Text::raw element
-        vec![Text::Raw(Cow::Owned(self.content.clone()))]
+}
+
+impl CustomParagraph for Preview {
+
+    fn items(&self) -> String {
+        self.content.clone()
     }
 
 }
