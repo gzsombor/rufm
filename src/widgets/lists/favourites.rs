@@ -2,7 +2,7 @@
 // the filesystem and read from a directory
 use std::{
     env::set_current_dir,
-    env::current_dir, iter::Iterator
+    iter::Iterator
 };
 
 // import the needed trait

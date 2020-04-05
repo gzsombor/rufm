@@ -21,7 +21,8 @@ use termion::event::Key;
 trait Action {
 
     fn get_key(&self) -> Key;
-    fn status(&self) -> String;
+    fn status(&self) -> String; 
+
     fn action(&self);
 
 }

@@ -5,13 +5,6 @@ use std::{
     io::prelude::*
 };
 
-use tui::widgets::{
-    Text
-};
-
-extern crate alloc;
-use alloc::borrow::Cow;
-
 // import the needed trait
 use crate::widgets::traits::CustomParagraph; 
 
@@ -26,24 +19,29 @@ impl Preview {
 
     // get the element of the current directory
     // and update self.content
-    fn get_dir(name: String) -> Vec<String> {
+    fn get_dir(&mut self) {
         
-        read_dir("./".to_string() + &name)
-            .expect("Could not read directory!")
-            .map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path and put it in a list
-            .map(|x| {
-                let mut x = x.unwrap();
-                if x.len() > 2 {
-                    x.remove(0); x.remove(0); // remove the ./ prefix
-
-                }; x
-            }).collect::<Vec<_>>() // .collect::<Result<Vec<_>, Error>>().unwrap()
+        match read_dir("./".to_string() + &self.filename) {
+            Ok(v) => {
+                let dir_content = v.map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path of all elements
+                    .map(|x| {
+                        let mut x = x.unwrap();
+                        if x.len() > 2 {
+                            x.remove(0); x.remove(0); // remove the ./ prefix
+                        }; x
+                    }).collect::<Vec<_>>();
+                for i in dir_content {
+                    self.content.push_str(&(i + "\n"));
+                } 
+            },
+            Err(_) => self.content = "No preview avaible!".to_string()
+        }
 
     }
 
     // create a new empty struct
-    pub fn new() -> Preview {
-        Preview {
+    pub fn new() -> Self {
+        Self {
             filename: String::new(),
             content: String::new()
         }
@@ -59,17 +57,21 @@ impl Preview {
         self.content = String::new();
         // check if the filename points to
         // a directory of a file
-        if Path::new(&self.filename).is_dir() {
-            let dir_content = Preview::get_dir(self.filename.clone());
-            for i in dir_content {
-                self.content.push_str(&(i + "\n"));
-            }
+        let path = Path::new(&self.filename);
+        
+        // check if path exists
+        if !path.exists() {
+            self.content.push_str("No preview avaible!");
+            return;
+        }
 
+        if path.is_dir() {
+            self.get_dir();
             return;
         } 
         
         // open file
-        let mut file = File::open
+        let file = File::open
             (self.filename.clone());
        
         // check if file could open
@@ -78,7 +80,7 @@ impl Preview {
                 // parse content into content variable
                 f.read_to_string(&mut self.content);
             },
-            Err(e) => {
+            Err(_) => {
                 self.content = "No preview avaible!".to_string();
             }
         }

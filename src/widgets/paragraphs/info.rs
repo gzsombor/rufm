@@ -24,14 +24,21 @@ impl Info {
     pub fn update(&mut self, name: String) {
 
         // create metadata
-        let md = metadata(name).unwrap();
-        // get the info
-        let len = md.len();
-        let kind = if md.is_dir() { "directory" } else { "file     " };
-        let readonly = if md.permissions().readonly() { "read only   " } else { "read & write" };
-        // update the content var
-        self.content = format!("{}  {}  {:>5}", kind, readonly, len);
-
+        match metadata(name) {
+            Ok(v) => {
+                let md = v;
+                // get the info
+                let len = md.len();
+                let kind = if md.is_dir() { "d" } else { "f" };
+                let readonly = if md.permissions().readonly() { "r " } else { "rw" };
+                // update the content var
+                self.content = format!("{}  {}  {:>5}", kind, readonly, len);
+            },
+            Err(_) => {
+                self.content = "No information avaible!".to_string();
+            }
+        };
+        
     }
 
 }

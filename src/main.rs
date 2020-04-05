@@ -1,8 +1,5 @@
 mod widgets;
 
-extern crate alloc;
-use alloc::borrow::Cow;
-
 // Write
 use std::io::{stdout, stdin, Error};
 
@@ -21,10 +18,6 @@ use termion::input::TermRead;
 use tui::Terminal;
 use tui::backend::{TermionBackend};
 
-use tui::widgets::Text;
-
-use std::env::current_dir;
-
 
 // entry point
 fn main() -> Result<(), Error> {
@@ -34,14 +27,9 @@ fn main() -> Result<(), Error> {
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    match terminal.clear() {
-        Ok(_) => {},
-        Err(e) => {
-            println!("Failed to clear terminal: {}", e);
-            return Err(e);
-        }
-    }
-    
+    // clear the terminal
+    terminal.clear();
+
     // text for the paragraph
     let mut search = widgets::Search::new();
     // file list
@@ -63,14 +51,11 @@ fn main() -> Result<(), Error> {
     // for keyboard input
     let stdin = stdin();
 
-    let mut searching = false;
-
     // loop through keyboard inputs
     // and evaluate them
     for evt in stdin.events() {
 
-        let event = evt.unwrap();
-
+        let event = evt.unwrap(); 
         // match events
         // specific to selected item
         match selected {
@@ -103,13 +88,7 @@ fn main() -> Result<(), Error> {
 	            
 	            // quit
 	            Event::Key(Key::Char('q')) => {
-	                match terminal.clear() {
-	                    Ok(_) => {},
-	                    Err(e) => {
-	                        println!("Failed to clear terminal: {}", e);
-	                        return Err(e);
-	                    }
-	                }
+	                terminal.clear().expect("Failed to clear terminal!");
 	                break;
 	            },
 	
@@ -144,7 +123,12 @@ fn main() -> Result<(), Error> {
                 // change to favourites
                 Event::Key(Key::Char('F')) => {
                     selected = Selectable::Favourites;
-                }
+                },
+
+                // copy the file / directory
+                Event::Key(Key::Char('y')) => {
+                    println!("Test, not implemented yet!"); 
+                },
 
 	            _ => {}
 	
@@ -154,13 +138,7 @@ fn main() -> Result<(), Error> {
                 
                 // quit
 	            Event::Key(Key::Char('q')) => {
-	                match terminal.clear() {
-	                    Ok(_) => {},
-	                    Err(e) => {
-	                        println!("Failed to clear terminal: {}", e);
-	                        return Err(e);
-	                    }
-	                }
+	                terminal.clear().expect("Failed to clear terminal!");
 	                break;
 	            },
 

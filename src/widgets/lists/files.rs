@@ -2,7 +2,6 @@
 // the filesystem and read from a directory
 use std::{
     fs::read_dir,
-    fs::metadata,
     env::set_current_dir,
     iter::Iterator
 };
@@ -85,7 +84,7 @@ impl FileList {
     pub fn change_dir_back(&mut self) {
 
         // get all elements off the cwd
-        set_current_dir("..");
+        set_current_dir("..").expect("Not possible to change back!");
         
         // update the content
         self.update();

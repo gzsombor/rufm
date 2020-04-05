@@ -1,13 +1,9 @@
-extern crate alloc;
-use alloc::borrow::Cow;
-
 use tui::terminal::Terminal;
 use tui::backend::Backend;
 
 use tui::style::{Color, Style};
 use tui::layout::{Layout, Direction, Constraint, Alignment};
-use tui::widgets::{Text, Paragraph, Block, Borders, List};
-
+use tui::widgets::{Paragraph, Block, Borders, List};
 
 use super::*;
 
@@ -35,8 +31,8 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([
-                    Constraint::Percentage(10),
-                    Constraint::Percentage(90)
+                    Constraint::Length(3),
+                    Constraint::Min(50)
                 ].as_ref()
             ).split(f.size());
 
@@ -144,7 +140,6 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
                 f.render(&mut favourites_colored, chunks_bottom_right[1]);
             },
 
-            _ => {}
         }
 
         
@@ -153,8 +148,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         Ok(()) => {},
         // else, exit
         Err(e) => {
-            println!("Could not draw to terminal: {}", e);
-            return;
+            panic!("Could not draw to terminal: {}", e);
         }
     }
 }
