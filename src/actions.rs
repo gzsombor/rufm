@@ -14,6 +14,14 @@
  *  - action method
  */
 
+use termion::event::Key;
+
 // action trait
 // needs to be implemented to all structs
-trait Action {}
+trait Action {
+
+    fn get_key(&self) -> Key;
+    fn status(&self) -> String;
+    fn action(&self);
+
+}

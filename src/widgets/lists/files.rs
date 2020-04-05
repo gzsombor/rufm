@@ -2,6 +2,7 @@
 // the filesystem and read from a directory
 use std::{
     fs::read_dir,
+    fs::metadata,
     env::set_current_dir,
     iter::Iterator
 };
@@ -39,22 +40,27 @@ impl FileList {
                     x.remove(0); x.remove(0); // remove the ./ prefix
 
                 }; x
-            }).collect::<Vec<_>>()
+            }).collect::<Vec<String>>()
 
     }
 
+    // get additional iformation 
+    // and add them with a tab between
+    // fn get_info() -> Vec<String> {}
+    
+
     // creates a new file list with
     // the content of the current directory
-    pub fn new() -> FileList {
+    pub fn new() -> Self {
 
         // get all elements off the cwd
-        let cwd_content = FileList::get_dir();
+        let cwd_content = Self::get_dir();
 
         // create the hightlighting style
         let style = Style::default().fg(Color::White).bg(Color::Blue);
         
         // return the FileList struct
-        FileList {
+        Self {
 
             current: 0,
             content: cwd_content,
@@ -66,10 +72,12 @@ impl FileList {
 
     // update the list
     pub fn update(&mut self) {
-        if FileList::get_dir().is_empty() {
+        // get the files
+        let files = Self::get_dir();
+        if files.is_empty() {
             self.content = vec!["Nothing found!".to_string()];
         } else {
-            self.content = FileList::get_dir();
+            self.content = files;
         }
     }
 
@@ -100,12 +108,15 @@ impl FileList {
     // sort the files after the input string
     pub fn sort(&mut self, key: String) {
 
-        if key.len() == 0 { return; }
+        if key.len() == 0 { 
+            self.content = Self::get_dir();
+            return;
+        }
             
         // empty the whole list
         self.content = Vec::new();
         // get all files of the cwd
-        let current_filelist = FileList::get_dir();
+        let current_filelist = Self::get_dir();
 
         // loop and remove the last i characters
         for i in 0..key.len() {
@@ -113,7 +124,7 @@ impl FileList {
             // create new key
             let new_key = &key[0..key.len() - i];
             for n in &current_filelist {
-                if n.contains(&new_key.to_lowercase()) || n.contains(&new_key.to_uppercase()) && !self.content.contains(n){
+                if n.contains(&new_key) && !self.content.contains(n){
                     self.content.push(n.clone());
                 }
             }

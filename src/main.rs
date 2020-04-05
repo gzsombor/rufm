@@ -7,8 +7,11 @@ use alloc::borrow::Cow;
 use std::io::{stdout, stdin, Error};
 
 use widgets::Selectable;
+
 use widgets::traits::ScrollableList;
 use widgets::traits::CustomParagraph;
+
+use widgets::draw;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -47,13 +50,15 @@ fn main() -> Result<(), Error> {
     let mut prev = widgets::Preview::new();
     // favourties tab
     let mut favourites = widgets::Favourites::new();
+    // info paragraph
+    let mut info = widgets::Info::new();
     // current selected element
     let mut selected = Selectable::FileList;
 
-    // give the drawing
-    // simple name function a
-    let dl = widgets::draw_layout;
-    dl(&selected, &mut prev, &favourites, &search, &filelist, &mut terminal);
+    filelist.update();
+
+    // draw the layout for the first time   
+    draw(&selected, &mut info, &mut prev, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -195,7 +200,7 @@ fn main() -> Result<(), Error> {
         }
 
         // draw the layout
-        dl(&selected, &mut prev, &favourites, &search, &filelist, &mut terminal);
+        draw(&selected, &mut info, &mut prev, &favourites, &search, &filelist, &mut terminal);
         
     }
 
