@@ -1,3 +1,3 @@
-pub mod actions;
+pub mod traits;
 
-use actions::Action;
+pub use traits::Action;

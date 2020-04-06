@@ -31,7 +31,7 @@ pub use paragraphs::preview::Preview;
 pub use paragraphs::search::Search;
 pub use paragraphs::info::Info;
 
-pub use traits::ScrollableList;
+pub use traits::CustomList;
 pub use traits::CustomParagraph;
 
 pub use render::draw;

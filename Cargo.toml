@@ -9,3 +9,7 @@ edition = "2018"
 [dependencies]
 tui = "*"
 termion = "*"
+serde = "*"
+toml = "*"
+
+serde_derive = "*"

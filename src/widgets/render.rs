@@ -1,11 +1,13 @@
 use tui::terminal::Terminal;
 use tui::backend::Backend;
 
-use tui::style::{Color, Style};
+use tui::style::{Color, Style, Modifier};
 use tui::layout::{Layout, Direction, Constraint, Alignment};
-use tui::widgets::{Paragraph, Block, Borders, List};
+use tui::widgets::{Paragraph, Block, Borders, SelectableList};
 
 use super::*;
+
+use crate::config::create_config;
 
 // draws the layout
 // parameters are a little messed up
@@ -20,22 +22,56 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
     // update the info
     info.update(fl.content[fl.current].clone());
 
-    let custom_border_style = Style::default().fg(Color::Blue);
+
+    // read from the configuration and
+    // update specific values
+    let config = create_config();
+    
+    let b_h = config.colors.border_highlight;
+    let b_n = config.colors.border_normal;
+    let t_h = config.colors.text_highlight;
+
+    // custom colors
+    let mut custom_select_style = Style::default()
+        .modifier(Modifier::BOLD);
+
+    match t_h.fg {
+        Some(v) => { custom_select_style = custom_select_style.fg(Color::Rgb(v[0], v[1], v[2])); },
+        None => {}
+    }
+
+    match t_h.bg {
+        Some(v) => { custom_select_style = custom_select_style.bg(Color::Rgb(v[0], v[1], v[2])); },
+        None => {}
+    }
+
+    let custom_border_style_normal = Style::default()
+        .fg(Color::Rgb(b_n[0], b_n[1], b_n[2]));
+    let custom_border_style_selected = Style::default()
+        .fg(Color::Rgb(b_h[0], b_h[1], b_h[2]));
+
+    // custom block
     let custom_block = Block::default().borders(Borders::ALL);
 
-    match terminal.draw(|mut f| {
+
+    terminal.draw(|mut f| {
 
 
         // layout
+        
+        // splits the screen in a small top row
+        // and a big bottom row
         let chunks_vert = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([
                     Constraint::Length(3),
-                    Constraint::Min(50)
+                    Constraint::Min(20)
                 ].as_ref()
             ).split(f.size());
 
+        // splits the top row into a big
+        // search bar and a small info bar
         let chunks_top = Layout::default()
             .direction(Direction::Horizontal)
             .margin(0)
@@ -45,6 +81,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
                 ].as_ref()
             ).split(chunks_vert[0]);
 
+        // splits the bottom into a fileslist
         let chunks_bottom = Layout::default()
             .direction(Direction::Horizontal)
             .margin(0)
@@ -54,6 +91,8 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
                 ].as_ref()
             ).split(chunks_vert[1]);
 
+        // splits the bottom right half into a big
+        // preview and a small favourites list
         let chunks_bottom_right = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
@@ -65,8 +104,8 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
 
 
-        let search_display = search.display_normal();
         // search paragraph
+        let search_display = search.display();
         let mut search_pgraph = Paragraph::new(search_display.iter())
             .block(custom_block.title("Search"))
             .style(Style::default().fg(Color::White))
@@ -74,10 +113,9 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
             .wrap(true);
 
 
-        // update the info
-        // info.update();
-        let info_display = info.display_normal();
+
         // info paragraph
+        let info_display = info.display();
         let mut info_pgraph = Paragraph::new(info_display.iter())
             .block(custom_block.title("Info"))
             .style(Style::default().fg(Color::White))
@@ -87,19 +125,16 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
      
 
         // create the lists
-        let mut filelist_normal = List::new(fl.create_normal().into_iter())
-            .block(custom_block.title("Files"));
-
-        // create the lists
-        let mut filelist_colored = List::new(fl.create_colored().into_iter())
-            .block(custom_block.title("Files")
-            .border_style(custom_border_style));
+        let mut file_list = SelectableList::default()
+            .items(&fl.content)
+            .block(custom_block.title("Files"))
+            .highlight_style(custom_select_style)
+            .highlight_symbol(">");
 
 
 
-        let preview_display = preview.display_normal();
-
-        // preview paragraph 
+        // preview paragraph
+        let preview_display = preview.display();
         let mut preview_pgraph = Paragraph::new(preview_display.iter())
             .block(custom_block.title("Preview"))
             .style(Style::default().fg(Color::White))
@@ -108,47 +143,49 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
 
 
-        let mut favourites_normal = List::new(favs.create_normal().into_iter()) 
-            .block(custom_block.title("Favourites"));
-     
-        let mut favourites_colored = List::new(favs.create_colored().into_iter())
-            .block(custom_block.title("Favourites"));
+        // favourites list normal
+        let mut favourites_list = SelectableList::default()
+            .items(&favs.names)
+            .block(custom_block.title("Favourites"))
+            .highlight_style(custom_select_style)
+            .highlight_symbol(">");
 
-
-
-        // render all elements in their chunk
-        f.render(&mut search_pgraph, chunks_top[0]);
-        f.render(&mut info_pgraph, chunks_top[1]);
-        f.render(&mut filelist_normal, chunks_bottom[0]);
-        f.render(&mut preview_pgraph, chunks_bottom_right[0]);
-        f.render(&mut favourites_normal, chunks_bottom_right[1]);
 
 
         // color the selected list
         match selected {
 
             Selectable::Search => {
-                search_pgraph = search_pgraph.block(custom_block.title("Search").border_style(custom_border_style));
-                f.render(&mut search_pgraph, chunks_top[0]);
+                // add colored border
+                search_pgraph = search_pgraph.block(custom_block.title("Search").border_style(custom_border_style_selected));
             },
 
             Selectable::FileList => {
-                f.render(&mut filelist_colored, chunks_bottom[0]);
+                // add colored border and select the current item
+                file_list = file_list 
+                    .block(custom_block.title("Files").border_style(custom_border_style_selected))
+                    .select(Some(fl.current));
             },
 
             Selectable::Favourites => {
-                f.render(&mut favourites_colored, chunks_bottom_right[1]);
+                // add colored border and select the current item
+                favourites_list = favourites_list
+                    .block(custom_block.title("Favourites").border_style(custom_border_style_selected))
+                    .select(Some(favs.current));
+
             },
 
         }
 
+
         
-    }) {
-        // is sucessful
-        Ok(()) => {},
-        // else, exit
-        Err(e) => {
-            panic!("Could not draw to terminal: {}", e);
-        }
-    }
+        // render all elements in their chunk
+        f.render(&mut search_pgraph, chunks_top[0]);
+        f.render(&mut info_pgraph, chunks_top[1]);
+        f.render(&mut file_list, chunks_bottom[0]);
+        f.render(&mut preview_pgraph, chunks_bottom_right[0]);
+        f.render(&mut favourites_list, chunks_bottom_right[1]);
+
+    }).expect("Could not draw to terminal!");
+
 }

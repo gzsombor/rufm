@@ -1,14 +1,17 @@
 mod widgets;
+mod config;
 
 // Write
 use std::io::{stdout, stdin, Error};
 
+// widgets
 use widgets::Selectable;
-
-use widgets::traits::ScrollableList;
-use widgets::traits::CustomParagraph;
-
+use widgets::CustomList;
+use widgets::CustomParagraph;
 use widgets::draw;
+
+// config
+use config::create_config;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -18,7 +21,6 @@ use termion::input::TermRead;
 use tui::Terminal;
 use tui::backend::{TermionBackend};
 
-
 // entry point
 fn main() -> Result<(), Error> {
     
@@ -26,10 +28,16 @@ fn main() -> Result<(), Error> {
     let stdout = stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
+    // hide the cursor
+    terminal.hide_cursor()?;
 
     // clear the terminal
     terminal.clear();
 
+    // get the config
+    let config = create_config();
+
+    // Widgets
     // text for the paragraph
     let mut search = widgets::Search::new();
     // file list
@@ -37,9 +45,13 @@ fn main() -> Result<(), Error> {
     // text for preview
     let mut prev = widgets::Preview::new();
     // favourties tab
-    let mut favourites = widgets::Favourites::new();
+    let mut favourites = widgets::Favourites::new(
+        config.favourites.names,
+        config.favourites.paths
+    );
     // info paragraph
     let mut info = widgets::Info::new();
+
     // current selected element
     let mut selected = Selectable::FileList;
 
@@ -127,7 +139,7 @@ fn main() -> Result<(), Error> {
 
                 // copy the file / directory
                 Event::Key(Key::Char('y')) => {
-                    println!("Test, not implemented yet!"); 
+
                 },
 
 	            _ => {}

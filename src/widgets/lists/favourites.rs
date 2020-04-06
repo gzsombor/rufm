@@ -6,7 +6,7 @@ use std::{
 };
 
 // import the needed trait
-use crate::widgets::traits::ScrollableList; 
+use crate::widgets::traits::CustomList; 
 
 // style and color selected row,
 // display text
@@ -19,8 +19,7 @@ pub struct Favourites {
 
     pub current: usize, // current selected item
     pub names: Vec<String>, // all names
-    pub paths: Vec<String>, // all paths (same index as names)
-    pub highlight: Style // the style, which the current item should have
+    pub paths: Vec<String> // all paths (same index as names)
 
 }
 
@@ -28,26 +27,14 @@ impl Favourites {
 
     // creates a new file list with
     // the content of the current directory
-    pub fn new() -> Favourites {
+    pub fn new(names: Vec<String>, paths: Vec<String>) -> Favourites {
 
-        // get all elements off the cwd
-        let favs_names = vec!["Home", "Dotfiles"]
-            .iter().map(|x| x.to_string()).collect::<Vec<String>>();
-        let favs_paths = vec!["/home/boss", "/home/boss/dotfiles"]
-            .iter().map(|x| x.to_string()).collect::<Vec<String>>();
-
-
-        // create the hightlighting style
-        let style = Style::default().fg(Color::White).bg(Color::Blue);
-        
         // return the FileList struct
         Favourites {
 
             current: 0,
-            names: favs_names,
-            paths: favs_paths,
-            highlight: style
-
+            names: names,
+            paths: paths 
         }
     
     }
@@ -84,36 +71,8 @@ impl Favourites {
 
 }
 
-impl ScrollableList for Favourites {
+impl CustomList for Favourites {
  
-//    // scrolls up in the list
-//    fn scroll_up(&mut self) {
-//
-//        if self.current != 0 {
-//            self.current -= 1;
-//        }
-//
-//    }
-//
-//    // scrolls down in the list
-//    fn scroll_down(&mut self) {
-//
-//        if self.current != self.names.len() - 1 {
-//            self.current += 1;
-//        }
-//
-//    }
-//
-//    // scrolls to the top of the list
-//    fn scroll_top(&mut self) {
-//        self.current = 0;
-//    }
-//
-//    // scrolls to the top of the list
-//    fn scroll_bottom(&mut self) {
-//        self.current = self.names.len() - 1;
-//    }
-
     fn get_len(&self) -> usize {
         self.names.len()
     }
@@ -124,10 +83,6 @@ impl ScrollableList for Favourites {
 
     fn set_current(&mut self, new: usize) {
         self.current = new;
-    }
-
-    fn items(&self) -> (Vec<String>, usize, Style) {
-        (self.names.clone(), self.current, self.highlight)
     }
 
 }
