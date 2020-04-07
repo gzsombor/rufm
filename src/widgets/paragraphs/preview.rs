@@ -47,12 +47,9 @@ impl Preview {
         }
     }
 
-    pub fn set_filename(&mut self, new: String) {
+    pub fn update(&mut self, new: String) {
         // update the filename
         self.filename = new;
-    }
-
-    pub fn update_content(&mut self) {
         // clear the string
         self.content = String::new();
         // check if the filename points to

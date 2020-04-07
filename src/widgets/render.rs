@@ -15,12 +15,6 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
     (selected: &Selectable, info: &mut Info, preview: &mut Preview,
     favs: &Favourites, search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
 
-    // update the preview
-    preview.set_filename(fl.content[fl.current].clone());
-    preview.update_content();
-
-    // update the info
-    info.update(fl.content[fl.current].clone());
 
 
     // read from the configuration and

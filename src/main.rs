@@ -1,5 +1,6 @@
 mod widgets;
 mod config;
+mod action;
 
 // Write
 use std::io::{stdout, stdin, Error};
@@ -12,6 +13,9 @@ use widgets::draw;
 
 // config
 use config::create_config;
+
+// action
+use action::Action;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -38,27 +42,30 @@ fn main() -> Result<(), Error> {
     let config = create_config();
 
     // Widgets
-    // text for the paragraph
     let mut search = widgets::Search::new();
-    // file list
     let mut filelist = widgets::FileList::new();
-    // text for preview
-    let mut prev = widgets::Preview::new();
-    // favourties tab
+    let mut preview = widgets::Preview::new();
     let mut favourites = widgets::Favourites::new(
         config.favourites.names,
         config.favourites.paths
     );
-    // info paragraph
     let mut info = widgets::Info::new();
 
     // current selected element
     let mut selected = Selectable::FileList;
 
+    // actions
+    let mut action = Action::new();
+
+    // update the filelist
     filelist.update();
+    // update the preview
+    preview.update(filelist.get_current());
+    // update the info
+    info.update(filelist.get_current());
 
     // draw the layout for the first time   
-    draw(&selected, &mut info, &mut prev, &favourites, &search, &filelist, &mut terminal);
+    draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -137,9 +144,17 @@ fn main() -> Result<(), Error> {
                     selected = Selectable::Favourites;
                 },
 
-                // copy the file / directory
-                Event::Key(Key::Char('y')) => {
-
+                // delete the file / directory 
+                Event::Key(Key::Char('X')) => {
+                    action.delete(filelist.get_current());
+                    // update the info graph
+                    info.content = format!("{} deleted!", filelist.get_current());
+                    // update the filelist
+                    filelist.update();
+                    preview.update(filelist.get_current());
+                    // draw the layout
+                    draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
+                    continue;
                 },
 
 	            _ => {}
@@ -188,9 +203,16 @@ fn main() -> Result<(), Error> {
             }
 
         }
+        
+        // update the filelist
+        filelist.update();
+        // update the preview
+        preview.update(filelist.get_current());
+        // update the info
+        info.update(filelist.get_current());
 
         // draw the layout
-        draw(&selected, &mut info, &mut prev, &favourites, &search, &filelist, &mut terminal);
+        draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
         
     }
 

@@ -62,6 +62,11 @@ impl FileList {
     
     }
 
+    // gets the current selected element
+    pub fn get_current(&self) -> String {
+        self.content[self.current].clone()
+    }
+
     // update the list
     pub fn update(&mut self) {
         // get the files
