@@ -120,7 +120,11 @@ fn rufm() {
                 },
 
                 // remove last char
-                Event::Key(Key::Backspace) => search.delete(),
+                Event::Key(Key::Backspace) => {
+                    search.delete();
+                    filelist.scroll_top();
+                    filelist.sort(search.items());
+                },
 
                 _ => {}
 
@@ -171,11 +175,24 @@ fn rufm() {
                 Event::Key(Key::Char('X')) => {
                     action.delete(filelist.get_current());
                     // update the info graph
+                    info.update = false;
                     info.content = action.status.clone();
-                    preview.update(filelist.get_current());
-                    // draw the layout
-                    draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
-                    continue;
+                },
+
+                // copy the file
+                Event::Key(Key::Char('C')) => {
+                    action.copy(filelist.get_current());
+                    // update info
+                    info.update = false;
+                    info.content = action.status.clone();
+                },
+
+                // paste the file
+                Event::Key(Key::Char('P')) =>  {
+                    action.paste();
+                    // update info
+                    info.update = false;
+                    info.content = action.status.clone();
                 },
 
 	            _ => {}

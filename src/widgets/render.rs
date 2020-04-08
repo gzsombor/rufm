@@ -1,3 +1,5 @@
+use std::env::current_dir;
+
 use tui::terminal::Terminal;
 use tui::backend::Backend;
 
@@ -100,7 +102,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // search paragraph
         let search_display = search.display();
         let mut search_pgraph = Paragraph::new(search_display.iter())
-            .block(custom_block.title("Search").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Search ").border_style(custom_border_style_normal))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -110,7 +112,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // info paragraph
         let info_display = info.display();
         let mut info_pgraph = Paragraph::new(info_display.iter())
-            .block(custom_block.title("Info").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Info ").border_style(custom_border_style_normal))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -118,9 +120,11 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
      
 
         // create the lists
+        let cwd = current_dir().expect("Could not get the cwd!");
+        let file_list_title = format!(" -> {} ", cwd.display());
         let mut file_list = SelectableList::default()
             .items(&fl.content)
-            .block(custom_block.title("Files").border_style(custom_border_style_normal))
+            .block(custom_block.title(file_list_title.as_str()).border_style(custom_border_style_normal))
             .highlight_style(custom_select_style)
             .highlight_symbol(">");
 
@@ -129,7 +133,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // preview paragraph
         let preview_display = preview.display();
         let mut preview_pgraph = Paragraph::new(preview_display.iter())
-            .block(custom_block.title("Preview").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Preview ").border_style(custom_border_style_normal))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -139,7 +143,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // favourites list normal
         let mut favourites_list = SelectableList::default()
             .items(&favs.names)
-            .block(custom_block.title("Favourites").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Favourites ").border_style(custom_border_style_normal))
             .highlight_style(custom_select_style)
             .highlight_symbol(">");
 
@@ -150,20 +154,20 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
             Selectable::Search => {
                 // add colored border
-                search_pgraph = search_pgraph.block(custom_block.title("Search").border_style(custom_border_style_selected));
+                search_pgraph = search_pgraph.block(custom_block.title(" Search ").border_style(custom_border_style_selected));
             },
 
             Selectable::FileList => {
                 // add colored border and select the current item
                 file_list = file_list 
-                    .block(custom_block.title("Files").border_style(custom_border_style_selected))
+                    .block(custom_block.title(file_list_title.as_str()).border_style(custom_border_style_selected))
                     .select(Some(fl.current));
             },
 
             Selectable::Favourites => {
                 // add colored border and select the current item
                 favourites_list = favourites_list
-                    .block(custom_block.title("Favourites").border_style(custom_border_style_selected))
+                    .block(custom_block.title(" Favourites ").border_style(custom_border_style_selected))
                     .select(Some(favs.current));
 
             },

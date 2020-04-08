@@ -77,11 +77,9 @@ impl FileList {
 
     // change one directory back
     pub fn change_dir_back(&mut self) {
-
         // get all elements off the cwd
         set_current_dir("..").expect("Not possible to change back!");
         self.update = true;
-
     }
 
     // change directory to current selected element
@@ -89,8 +87,10 @@ impl FileList {
 
         // current selected element
         let path = &self.content[self.current];
-        set_current_dir(path.as_str()).expect("Could not change the directory!");
-        self.update = true;
+        match set_current_dir(path.as_str()) {
+            Ok(_) => {},
+            Err(_) => {}
+        }; self.update = true;
 
     }
 
