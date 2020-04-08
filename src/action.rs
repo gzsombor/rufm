@@ -83,9 +83,7 @@ impl Action {
         // read the dir and convert the result a string vector
         let cwd_content = Action::get_dir();
         for c in cwd_content {
-            println!("{}", c);
             if c == name {
-                println!("Match!");
                 return self.check(name + "_copy");
             }
         }; name 

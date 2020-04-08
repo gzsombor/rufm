@@ -174,6 +174,7 @@ fn rufm() {
                 // delete the file / directory 
                 Event::Key(Key::Char('X')) => {
                     action.delete(filelist.get_current());
+                    filelist.scroll_top();
                     // update the info graph
                     info.update = false;
                     info.content = action.status.clone();
@@ -182,6 +183,7 @@ fn rufm() {
                 // copy the file
                 Event::Key(Key::Char('C')) => {
                     action.copy(filelist.get_current());
+                    filelist.scroll_top();
                     // update info
                     info.update = false;
                     info.content = action.status.clone();
@@ -190,6 +192,7 @@ fn rufm() {
                 // paste the file
                 Event::Key(Key::Char('P')) =>  {
                     action.paste();
+                    filelist.scroll_top();
                     // update info
                     info.update = false;
                     info.content = action.status.clone();
