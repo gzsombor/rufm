@@ -1,7 +1,11 @@
 use std::{
     path::Path,
+
+    fs::copy,
+    fs::read_dir,
     fs::remove_file,
     fs::remove_dir_all,
+
     env::current_dir
 };
 
@@ -42,7 +46,30 @@ impl Action {
    
     // pastes the clipboard to current location
     pub fn paste(&self) {
-        // let cwd = Action::get_cwd();
+        // get the filename
+        let filename = self.check(
+            self.clipboard.split("/")
+                .collect::<Vec<&str>>().clone().pop()
+                .expect("Could not pop last element!").to_string()
+        );
+        // copy the file
+        copy(self.clipboard.clone(), filename);  
+    }
+
+    // checks if filename exists,
+    // adds _copy and restarts
+    fn check(&self, name: String) -> String {
+        // check if file with similar name already exists
+        let cwd_content: Vec<String> = read_dir("./")
+            .expect("Could not read the directory!")
+            .map(|x| x.expect("Could not read the directory!").path().to_str()
+                 .expect("Could not read the directory!").to_string()).collect();
+        for c in cwd_content {
+            if c == name {
+                return self.check(name + "_copy");
+            }
+        }
+        name 
     }
 
     // deletes the specified directory

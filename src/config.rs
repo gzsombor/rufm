@@ -8,6 +8,9 @@ use std::{
     io::prelude::*
 };
 
+
+// Structs, where the toml
+// config will get parse into
 #[derive(Deserialize)]
 pub struct Config {
 
@@ -42,12 +45,15 @@ pub struct Color {
 
 }
 
+
 pub fn create_config() -> Config {
     
     // read from the file
     let mut content = String::new();
+
     // get the home directory
     let home = var("HOME").expect("Could not get $HOME");
+
     // compose the filename
     let filename = String::from(home + "/.config/rufm/config.ini");
     match File::open(&filename) {
