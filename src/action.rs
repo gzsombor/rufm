@@ -37,9 +37,9 @@ impl Action {
     }
 
     // gets all elements in the cwd
-    fn get_dir() -> Vec<String> {
+    fn get_dir(path: String) -> Vec<String> {
 
-        read_dir("./")
+        read_dir(path)
             .expect("Could not read directory!")
             .map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path and put it in a list
             .map(|x| {
@@ -49,6 +49,35 @@ impl Action {
 
                 }; x
             }).collect::<Vec<String>>()
+
+    }
+
+    // copies a directory recursively
+    pub fn copy_recursively(name: String) {
+    
+        // get all the elements of
+        // the target directory
+        let content = Action::get_dir(name);
+        // create the directory to copy to
+        // ...
+        
+        // loop through all elements
+        // and check if they're a dir:
+        // - copy recursively again
+        // a file:
+        // - copy it normall
+        for c in content {
+            let p = Path::new(&c);
+            if p.is_dir() {
+                let new_dir = format!("{}/{}", name, c);
+                return Acton::copy_recursively(new_dir);
+            } else {
+                // copy the file
+                let from = format!("{}/{}", self.clipboard, c);
+                let to = format!("{}/{}", name, c); 
+                copy(from, to).expect("Could not copy the directory!");
+            }
+        }
 
     }
     
@@ -81,7 +110,7 @@ impl Action {
     fn check(&self, name: String) -> String {
         // check if file with similar name already exists
         // read the dir and convert the result a string vector
-        let cwd_content = Action::get_dir();
+        let cwd_content = Action::get_dir("./");
         for c in cwd_content {
             if c == name {
                 return self.check(name + "_copy");
