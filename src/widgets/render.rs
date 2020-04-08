@@ -12,9 +12,8 @@ use crate::config::create_config;
 // draws the layout
 // parameters are a little messed up
 pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
-    (selected: &Selectable, info: &mut Info, preview: &mut Preview,
+    (selected: &Selectable, info: &Info, preview: &Preview,
     favs: &Favourites, search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
-
 
 
     // read from the configuration and
@@ -101,7 +100,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // search paragraph
         let search_display = search.display();
         let mut search_pgraph = Paragraph::new(search_display.iter())
-            .block(custom_block.title("Search"))
+            .block(custom_block.title("Search").border_style(custom_border_style_normal))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -111,7 +110,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // info paragraph
         let info_display = info.display();
         let mut info_pgraph = Paragraph::new(info_display.iter())
-            .block(custom_block.title("Info"))
+            .block(custom_block.title("Info").border_style(custom_border_style_normal))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -121,7 +120,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // create the lists
         let mut file_list = SelectableList::default()
             .items(&fl.content)
-            .block(custom_block.title("Files"))
+            .block(custom_block.title("Files").border_style(custom_border_style_normal))
             .highlight_style(custom_select_style)
             .highlight_symbol(">");
 
@@ -130,7 +129,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // preview paragraph
         let preview_display = preview.display();
         let mut preview_pgraph = Paragraph::new(preview_display.iter())
-            .block(custom_block.title("Preview"))
+            .block(custom_block.title("Preview").border_style(custom_border_style_normal))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -140,7 +139,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // favourites list normal
         let mut favourites_list = SelectableList::default()
             .items(&favs.names)
-            .block(custom_block.title("Favourites"))
+            .block(custom_block.title("Favourites").border_style(custom_border_style_normal))
             .highlight_style(custom_select_style)
             .highlight_symbol(">");
 
@@ -170,7 +169,6 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
             },
 
         }
-
 
         
         // render all elements in their chunk

@@ -1,9 +1,13 @@
 mod widgets;
 mod config;
 mod action;
+mod cmd;
 
 // Write
-use std::io::{stdout, stdin, Error};
+use std::io::{
+    stdout,
+    stdin
+};
 
 // widgets
 use widgets::Selectable;
@@ -17,6 +21,9 @@ use config::create_config;
 // action
 use action::Action;
 
+// cmd
+use cmd::eval;
+
 // backend
 use termion::raw::IntoRawMode;
 use termion::event::{Key, Event};
@@ -25,18 +32,27 @@ use termion::input::TermRead;
 use tui::Terminal;
 use tui::backend::{TermionBackend};
 
+
 // entry point
-fn main() -> Result<(), Error> {
-    
+fn main() {
+
+    eval();
+    rufm();
+
+}
+
+// tui
+fn rufm() {
+
     // creating the terminal
-    let stdout = stdout().into_raw_mode()?;
+    let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
     let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = Terminal::new(backend).expect("Could not draw to the terminal!");
     // hide the cursor
-    terminal.hide_cursor()?;
+    terminal.hide_cursor().expect("Could not draw to the terminal!");
 
     // clear the terminal
-    terminal.clear();
+    terminal.clear().expect("Could not clear the terminal!");
 
     // get the config
     let config = create_config();
@@ -65,7 +81,7 @@ fn main() -> Result<(), Error> {
     info.update(filelist.get_current());
 
     // draw the layout for the first time   
-    draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
+    draw(&selected, &info, &preview, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -85,14 +101,21 @@ fn main() -> Result<(), Error> {
                 Event::Key(Key::Char('\n')) => {
                     filelist.scroll_top();
                     filelist.sort(search.items());
+                    filelist.update = false;
                     selected = Selectable::FileList;
-                }
+                },
 
                 // add the char to the string
-                Event::Key(Key::Char(c)) => search.add(c.to_string()),
+                Event::Key(Key::Char(c)) => {
+                    search.add(c.to_string());
+                    filelist.scroll_top();
+                    filelist.sort(search.items());
+                },
 
                 // exit search mode
                 Event::Key(Key::Esc) => {
+                    filelist.update = true;
+                    search.clear();
                     selected = Selectable::FileList;
                 },
 
@@ -107,7 +130,7 @@ fn main() -> Result<(), Error> {
 	            
 	            // quit
 	            Event::Key(Key::Char('q')) => {
-	                terminal.clear().expect("Failed to clear terminal!");
+	                terminal.clear().expect("Could not clear the terminal!");
 	                break;
 	            },
 	
@@ -148,9 +171,7 @@ fn main() -> Result<(), Error> {
                 Event::Key(Key::Char('X')) => {
                     action.delete(filelist.get_current());
                     // update the info graph
-                    info.content = format!("{} deleted!", filelist.get_current());
-                    // update the filelist
-                    filelist.update();
+                    info.content = action.status.clone();
                     preview.update(filelist.get_current());
                     // draw the layout
                     draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
@@ -190,8 +211,7 @@ fn main() -> Result<(), Error> {
                     selected = Selectable::FileList;
                     favourites.change_dir_selected(); 
                     filelist.scroll_top();
-                    filelist.update();
-                }
+                },
 
                 // exit search mode
                 Event::Key(Key::Esc) => {
@@ -203,7 +223,7 @@ fn main() -> Result<(), Error> {
             }
 
         }
-        
+       
         // update the filelist
         filelist.update();
         // update the preview
@@ -212,10 +232,8 @@ fn main() -> Result<(), Error> {
         info.update(filelist.get_current());
 
         // draw the layout
-        draw(&selected, &mut info, &mut preview, &favourites, &search, &filelist, &mut terminal);
+        draw(&selected, &info, &preview, &favourites, &search, &filelist, &mut terminal);
         
     }
-
-    Ok(())
     
 }

@@ -8,7 +8,8 @@ use std::{
 
 pub struct Action {
 
-    pub clipboard: String // path of a file or directory
+    pub clipboard: String, // path of a file or directory
+    pub status: String // status message, display in info widget
 
 }
 
@@ -19,7 +20,8 @@ impl Action {
     pub fn new() -> Self {
 
         Self {
-            clipboard: String::new()
+            clipboard: String::new(),
+            status: String::new()
         }
 
     }
@@ -40,19 +42,27 @@ impl Action {
    
     // pastes the clipboard to current location
     pub fn paste(&self) {
-        let cwd = Action::get_cwd();
+        // let cwd = Action::get_cwd();
     }
 
     // deletes the specified directory
-    pub fn delete(&self, name: String) {
+    pub fn delete(&mut self, name: String) {
         // create path to access information    
         let path = Path::new(&name); 
         // remove it
         if path.is_dir() {
-            remove_dir_all(path);
+            match remove_dir_all(path) {
+                Ok(_) => {},
+                Err(_) => self.status = format!("Failed to delete {}!", name)
+            }
         } else {
-            remove_file(path);
+            match remove_file(path) {
+                Ok(_) => {},
+                Err(_) => self.status = format!("Failed to delete {}!", name)
+            }
         }
+        // update the status
+        self.status = format!("Deleted {}!", name);
     }
 
 }

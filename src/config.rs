@@ -1,12 +1,10 @@
 // use to decode the toml
-use toml::Value;
 use serde_derive::Deserialize;
 
 // use to read the file
 use std::{
     env::var,
     fs::File,
-    path::Path,
     io::prelude::*
 };
 
@@ -57,7 +55,7 @@ pub fn create_config() -> Config {
             // if it exists, assign it
             let mut config_file = v;
             // read it
-            config_file.read_to_string(&mut content);
+            config_file.read_to_string(&mut content).expect("Could not read the config file!");
             // parse the variable to the Config struct
             let config: Config = toml::from_str(&content).expect("Could not parse toml!");
             // return the config

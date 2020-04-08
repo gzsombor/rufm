@@ -9,17 +9,14 @@ use std::{
 // import the needed trait
 use crate::widgets::traits::CustomList; 
 
-// style and color selected row,
-// display text
-use tui::style::{Color, Style};
-
 // FileList struct
 // Gets used by draw_layout
 // to draw the list widget which displays files
 pub struct FileList {
-
+    
     pub current: usize, // current selected item
-    pub content: Vec<String> // all items
+    pub content: Vec<String>, // all items
+    pub update: bool // if update is needed
 
 }
 
@@ -49,14 +46,12 @@ impl FileList {
         // get all elements off the cwd
         let cwd_content = Self::get_dir();
 
-        // create the hightlighting style
-        let style = Style::default().fg(Color::White).bg(Color::Blue);
-        
         // return the FileList struct
         Self {
 
             current: 0,
-            content: cwd_content
+            content: cwd_content,
+            update: true
 
         }
     
@@ -69,12 +64,14 @@ impl FileList {
 
     // update the list
     pub fn update(&mut self) {
-        // get the files
-        let files = Self::get_dir();
-        if files.is_empty() {
-            self.content = vec!["Nothing found!".to_string()];
-        } else {
-            self.content = files;
+        if self.update {
+            // get the files
+            let files = Self::get_dir();
+            if files.is_empty() {
+                self.content = vec!["Nothing found!".to_string()];
+            } else {
+                self.content = files;
+            }
         }
     }
 
@@ -83,9 +80,7 @@ impl FileList {
 
         // get all elements off the cwd
         set_current_dir("..").expect("Not possible to change back!");
-        
-        // update the content
-        self.update();
+        self.update = true;
 
     }
 
@@ -94,11 +89,8 @@ impl FileList {
 
         // current selected element
         let path = &self.content[self.current];
-        set_current_dir(path.as_str());
-
-        // update the content
-        self.update();
-    
+        set_current_dir(path.as_str()).expect("Could not change the directory!");
+        self.update = true;
 
     }
 
@@ -115,45 +107,20 @@ impl FileList {
         // get all files of the cwd
         let current_filelist = Self::get_dir();
 
-        // loop and remove the last i characters
-        for i in 0..key.len() {
-          
-            // create new key
-            let new_key = &key[0..key.len() - i];
-            for n in &current_filelist {
-                if n.contains(&new_key) && !self.content.contains(n){
-                    self.content.push(n.clone());
-                }
+        // create new key
+        for n in &current_filelist {
+            if n.contains(&key) { 
+                self.content.push(n.clone());
             }
-
         }
          
         if self.content.is_empty() {
              self.content = vec!["Nothing found!".to_string()];
         }
 
-    }
+        self.update = false;
 
-//    pub fn select(&mut self) -> Vec<Text<'_>> {
-//
-//        self.content.iter().enumerate().map(|(index, f)| {
-//
-//            if index == self.current {
-//
-//                Text::Styled(
-//                    Cow::Borrowed(f),
-//                    self.highlight
-//                )
-//
-//            } else {
-//
-//                Text::Raw(Cow::Borrowed(f))
-//
-//            }
-//
-//        }).collect()
-//
-//    }
+    }
 
 }
 

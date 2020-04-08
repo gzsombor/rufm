@@ -11,7 +11,8 @@ use crate::widgets::traits::CustomParagraph;
 pub struct Preview {
 
     pub filename: String, // the name of the previewed file
-    pub content: String // the content of the previewed file
+    pub content: String, // the content of the previewed file
+    pub update: bool // if it should update
 
 }
 
@@ -43,44 +44,52 @@ impl Preview {
     pub fn new() -> Self {
         Self {
             filename: String::new(),
-            content: String::new()
+            content: String::new(),
+            update: true
         }
     }
 
     pub fn update(&mut self, new: String) {
-        // update the filename
-        self.filename = new;
-        // clear the string
-        self.content = String::new();
-        // check if the filename points to
-        // a directory of a file
-        let path = Path::new(&self.filename);
-        
-        // check if path exists
-        if !path.exists() {
-            self.content.push_str("No preview avaible!");
-            return;
-        }
 
-        if path.is_dir() {
-            self.get_dir();
-            return;
-        } 
-        
-        // open file
-        let file = File::open
-            (self.filename.clone());
+        if self.update {
+            // update the filename
+            self.filename = new;
+            // clear the string
+            self.content = String::new();
+            // check if the filename points to
+            // a directory of a file
+            let path = Path::new(&self.filename);
+            
+            // check if path exists
+            if !path.exists() {
+                self.content.push_str("No preview avaible!");
+                return;
+            }
+
+            if path.is_dir() {
+                self.get_dir();
+                return;
+            } 
+            
+            // open file
+            let file = File::open
+                (self.filename.clone());
        
-        // check if file could open
-        match file {
-            Ok(mut f) => {
-                // parse content into content variable
-                f.read_to_string(&mut self.content);
-            },
-            Err(_) => {
-                self.content = "No preview avaible!".to_string();
+            // check if file could open
+            match file {
+                Ok(mut f) => {
+                    // parse content into content variable
+                    match f.read_to_string(&mut self.content) {
+                        Ok(_) => {},
+                        Err(_) => self.content = "No preview avaible!".to_string()
+                    }
+                },
+                Err(_) => {
+                    self.content = "No preview avaible!".to_string();
+                }
             }
         }
+        
     }
 
 }

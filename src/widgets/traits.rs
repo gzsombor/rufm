@@ -19,26 +19,22 @@ pub trait CustomList {
     
     // scrolls up in the list
     fn scroll_up(&mut self) {
-
         let cur = self.get_current();
         if cur == 0 {
             self.set_current(self.get_len() - 1);
         } else {
             self.set_current(cur - 1);
         }
-
     }
 
     // scrolls down in the list
     fn scroll_down(&mut self) {
-
         let cur = self.get_current();
         if cur == self.get_len() - 1 {
             self.set_current(0);
         } else {
             self.set_current(cur + 1);
         }
-
     }
 
     // scrolls to the top of the list

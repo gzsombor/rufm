@@ -1,16 +1,11 @@
 // use fs to access
 // the filesystem and read from a directory
 use std::{
-    env::set_current_dir,
-    iter::Iterator
+    env::set_current_dir
 };
 
 // import the needed trait
 use crate::widgets::traits::CustomList; 
-
-// style and color selected row,
-// display text
-use tui::style::{Color, Style};
 
 // FileList struct
 // Gets used by draw_layout
@@ -19,7 +14,8 @@ pub struct Favourites {
 
     pub current: usize, // current selected item
     pub names: Vec<String>, // all names
-    pub paths: Vec<String> // all paths (same index as names)
+    pub paths: Vec<String>, // all paths (same index as names)
+    pub update: bool // if update is needed
 
 }
 
@@ -34,7 +30,9 @@ impl Favourites {
 
             current: 0,
             names: names,
-            paths: paths 
+            paths: paths,
+            update: true
+
         }
     
     }
@@ -44,30 +42,9 @@ impl Favourites {
 
         // current selected element
         let path = &self.paths[self.current];
-        set_current_dir(path.as_str()); // path.as_str());
+        set_current_dir(path.as_str()).expect("Could not change the directory!");
 
     }
-
-//    pub fn select(&mut self) -> Vec<Text<'_>> {
-//
-//        self.content.iter().enumerate().map(|(index, f)| {
-//
-//            if index == self.current {
-//
-//                Text::Styled(
-//                    Cow::Borrowed(f),
-//                    self.highlight
-//                )
-//
-//            } else {
-//
-//                Text::Raw(Cow::Borrowed(f))
-//
-//            }
-//
-//        }).collect()
-//
-//    }
 
 }
 
