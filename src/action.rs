@@ -3,6 +3,7 @@ use std::{
 
     fs::copy,
     fs::read_dir,
+    fs::create_dir,
     fs::remove_file,
     fs::remove_dir_all,
 
@@ -41,40 +42,49 @@ impl Action {
 
         read_dir(path)
             .expect("Could not read directory!")
-            .map(|res| res.map(|e| e.path().to_str().unwrap().to_string())) // get the path and put it in a list
-            .map(|x| {
-                let mut x = x.unwrap();
-                if x.len() > 2 {
-                    x.remove(0); x.remove(0); // remove the ./ prefix
-
-                }; x
-            }).collect::<Vec<String>>()
+            .map(|res| res.map(|e| {
+                let mut r = e.path().to_str().unwrap().to_string(); // get the path and put it in a list
+                if &r[0..2] == "./" {
+                    r.remove(0); r.remove(0);
+                }; r
+            })).map(|x| x.unwrap()).collect::<Vec<String>>()
 
     }
 
     // copies a directory recursively
-    pub fn copy_recursively(name: String) {
-    
+    pub fn copy_recursively(&self, name: String) {
+  
+        // removes the last element
+        // let cp = self.clipboard.clone();
+        // let cp = &cp.split("/").collect::<Vec<&str>>();
+        // let cp = &cp[0..cp.len() - 1].join("/");
+        // the target directory to copy
+        let mut n = name.split("/").collect::<Vec<&str>>();
+        let n = &n[1..n.len()];
+        let target = format!("{}/{}", self.clipboard.clone(), n.join("/"));
         // get all the elements of
         // the target directory
-        let content = Action::get_dir(name);
+        let content = Action::get_dir(target.clone());
         // create the directory to copy to
-        // ...
+        create_dir(name.clone()); 
         
         // loop through all elements
         // and check if they're a dir:
         // - copy recursively again
         // a file:
-        // - copy it normall
+        // - copy it normal
         for c in content {
+            // get the name
+            let c_name = &c.split("/")
+                .collect::<Vec<&str>>().pop().unwrap().to_string();
             let p = Path::new(&c);
             if p.is_dir() {
-                let new_dir = format!("{}/{}", name, c);
-                return Acton::copy_recursively(new_dir);
+                let new_dir = format!("{}/{}", name.clone(), c_name);
+                return self.copy_recursively(new_dir);
             } else {
                 // copy the file
-                let from = format!("{}/{}", self.clipboard, c);
-                let to = format!("{}/{}", name, c); 
+                let from = format!("{}/{}", target.clone(), c_name);
+                let to = format!("{}/{}", name.clone(), c_name); 
                 copy(from, to).expect("Could not copy the directory!");
             }
         }
@@ -99,8 +109,15 @@ impl Action {
                 .collect::<Vec<&str>>().clone().pop()
                 .expect("Could not pop last element!").to_string()
         );
-        // copy the file
-        copy(self.clipboard.clone(), &filename).expect("Could not copy the file / directory!");  
+        // copy normaly if its a file
+        // else recursively
+        let p = &self.clipboard.clone();
+        let p = Path::new(p);
+        if p.is_file() {
+            copy(self.clipboard.clone(), &filename).expect("Could not copy the file / directory!");
+        } else {
+            self.copy_recursively(filename.clone());
+        }
         // update the status
         self.status = format!("Pasted {}!", &filename);
     }
@@ -110,11 +127,11 @@ impl Action {
     fn check(&self, name: String) -> String {
         // check if file with similar name already exists
         // read the dir and convert the result a string vector
-        let cwd_content = Action::get_dir("./");
+        let cwd_content = Action::get_dir("./".to_string());
         for c in cwd_content {
             if c == name {
-                return self.check(name + "_copy");
-            }
+                return self.check(name.clone() + "_copy");
+            } 
         }; name 
     }
 
