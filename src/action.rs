@@ -80,7 +80,7 @@ impl Action {
             let p = Path::new(&c);
             if p.is_dir() {
                 let new_dir = format!("{}/{}", name.clone(), c_name);
-                return self.copy_recursively(new_dir);
+                self.copy_recursively(new_dir);
             } else {
                 // copy the file
                 let from = format!("{}/{}", target.clone(), c_name);
