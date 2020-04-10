@@ -1,21 +1,17 @@
 use std::{
-    path::Path,
-
-    fs::copy,
-    fs::read_dir,
-    fs::create_dir,
+    env::current_dir, 
+    fs::copy, 
+    fs::create_dir, 
+    fs::read_dir, 
+    fs::remove_dir_all, 
     fs::remove_file,
-    fs::remove_dir_all,
-
-    env::current_dir
+    fs::rename,
+    path::Path,
 };
 
-
 pub struct Action {
-
     pub clipboard: String, // path of a file or directory
-    pub status: String // status message, display in info widget
-
+    pub status: String,    // status message, display in info widget
 }
 
 // add action methods
@@ -23,12 +19,10 @@ impl Action {
 
     // create a new action
     pub fn new() -> Self {
-
         Self {
             clipboard: String::new(),
-            status: String::new()
+            status: String::new(),
         }
-
     }
 
     // gets the cwd
@@ -39,21 +33,24 @@ impl Action {
 
     // gets all elements in the cwd
     fn get_dir(path: String) -> Vec<String> {
-
         read_dir(path)
             .expect("Could not read directory!")
-            .map(|res| res.map(|e| {
-                let mut r = e.path().to_str().unwrap().to_string(); // get the path and put it in a list
-                if &r[0..2] == "./" {
-                    r.remove(0); r.remove(0);
-                }; r
-            })).map(|x| x.unwrap()).collect::<Vec<String>>()
-
+            .map(|res| {
+                res.map(|e| {
+                    let mut r = e.path().to_str().unwrap().to_string(); // get the path and put it in a list
+                    if &r[0..2] == "./" {
+                        r.remove(0);
+                        r.remove(0);
+                    };
+                    r
+                })
+            })
+            .map(|x| x.unwrap())
+            .collect::<Vec<String>>()
     }
 
     // copies a directory recursively
     pub fn copy_recursively(&self, name: String) {
-  
         // removes the last element
         // let cp = self.clipboard.clone();
         // let cp = &cp.split("/").collect::<Vec<&str>>();
@@ -66,8 +63,8 @@ impl Action {
         // the target directory
         let content = Action::get_dir(target.clone());
         // create the directory to copy to
-        create_dir(name.clone()); 
-        
+        create_dir(name.clone());
+
         // loop through all elements
         // and check if they're a dir:
         // - copy recursively again
@@ -75,8 +72,12 @@ impl Action {
         // - copy it normal
         for c in content {
             // get the name
-            let c_name = &c.split("/")
-                .collect::<Vec<&str>>().pop().unwrap().to_string();
+            let c_name = &c
+                .split("/")
+                .collect::<Vec<&str>>()
+                .pop()
+                .unwrap()
+                .to_string();
             let p = Path::new(&c);
             if p.is_dir() {
                 let new_dir = format!("{}/{}", name.clone(), c_name);
@@ -84,30 +85,33 @@ impl Action {
             } else {
                 // copy the file
                 let from = format!("{}/{}", target.clone(), c_name);
-                let to = format!("{}/{}", name.clone(), c_name); 
+                let to = format!("{}/{}", name.clone(), c_name);
                 copy(from, to).expect("Could not copy the directory!");
             }
         }
-
     }
-    
+
     // adds the name to the clipboard
     // and copies the file / directory with the
     // same name to .rufm
     pub fn copy(&mut self, name: String) {
-        let cwd = Action::get_cwd();         
+        let cwd = Action::get_cwd();
         self.clipboard = format!("{}/{}", cwd, name);
         // update the status
         self.status = format!("Copied {}!", name);
     }
-   
+
     // pastes the clipboard to current location
     pub fn paste(&mut self) {
         // get the filename
         let filename = self.check(
-            self.clipboard.split("/")
-                .collect::<Vec<&str>>().clone().pop()
-                .expect("Could not pop last element!").to_string()
+            self.clipboard
+                .split("/")
+                .collect::<Vec<&str>>()
+                .clone()
+                .pop()
+                .expect("Could not pop last element!")
+                .to_string(),
         );
         // copy normaly if its a file
         // else recursively
@@ -131,28 +135,35 @@ impl Action {
         for c in cwd_content {
             if c == name {
                 return self.check(name.clone() + "_copy");
-            } 
-        }; name 
+            }
+        }
+        name
     }
 
     // deletes the specified directory
     pub fn delete(&mut self, name: String) {
-        // create path to access information    
-        let path = Path::new(&name); 
+        // create path to access information
+        let path = Path::new(&name);
         // remove it
         if path.is_dir() {
             match remove_dir_all(path) {
-                Ok(_) => {},
-                Err(_) => self.status = format!("Failed to delete {}!", name)
+                Ok(_) => {}
+                Err(_) => self.status = format!("Failed to delete {}!", name),
             }
         } else {
             match remove_file(path) {
-                Ok(_) => {},
-                Err(_) => self.status = format!("Failed to delete {}!", name)
+                Ok(_) => {}
+                Err(_) => self.status = format!("Failed to delete {}!", name),
             }
         }
         // update the status
         self.status = format!("Deleted {}!", name);
     }
 
+    // renames the element
+    pub fn rename(&mut self, name: String, new: String) {
+        rename(name.clone(), new.clone());
+        self.status = format!("Renamed {} to {}!", name, new);
+    }
+    
 }

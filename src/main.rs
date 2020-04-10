@@ -10,10 +10,13 @@ use std::io::{
 };
 
 // widgets
-use widgets::Selectable;
-use widgets::CustomList;
-use widgets::CustomParagraph;
-use widgets::draw;
+use widgets::{
+    Selectable,
+    CustomList,
+    CustomParagraph,
+    EditableParagraph,
+    draw
+};
 
 // config
 use config::create_config;
@@ -64,8 +67,7 @@ fn rufm() {
     let mut favourites = widgets::Favourites::new(
         config.favourites.names,
         config.favourites.paths
-    );
-    let mut info = widgets::Info::new();
+    ); let mut info = widgets::Info::new();
 
     // current selected element
     let mut selected = Selectable::FileList;
@@ -85,7 +87,6 @@ fn rufm() {
 
     // for keyboard input
     let stdin = stdin();
-
     // loop through keyboard inputs
     // and evaluate them
     for evt in stdin.events() {
@@ -94,6 +95,42 @@ fn rufm() {
         // match events
         // specific to selected item
         match selected {
+
+            Selectable::Info => {
+               
+                info.update = false;
+
+                match event {
+                
+                    // sort the files -> end the search input
+                    Event::Key(Key::Char('\n')) => {
+                        action.rename(filelist.get_current(), info.content.clone());
+                        // update info
+                        info.content = action.status.clone();
+                        selected = Selectable::FileList;
+                    },
+
+                    // add the char to the string
+                    Event::Key(Key::Char(c)) => {
+                        info.add(c.to_string());
+                    },
+
+                    // exit search mode
+                    Event::Key(Key::Esc) => {
+                        info.clear();
+                        selected = Selectable::FileList;
+                    },
+
+                    // remove last char
+                    Event::Key(Key::Backspace) => {
+                        info.delete();
+                    },
+
+                    _ => {}
+                
+                }
+
+            },
 
             Selectable::Search => match event {
 
@@ -172,7 +209,7 @@ fn rufm() {
                 },
 
                 // delete the file / directory 
-                Event::Key(Key::Char('X')) => {
+                Event::Key(Key::Char('D')) => {
                     action.delete(filelist.get_current());
                     filelist.scroll_top();
                     // update the info graph
@@ -180,7 +217,7 @@ fn rufm() {
                     info.content = action.status.clone();
                 },
 
-                // copy the file
+                // copy the file / directory
                 Event::Key(Key::Char('C')) => {
                     action.copy(filelist.get_current());
                     filelist.scroll_top();
@@ -189,7 +226,7 @@ fn rufm() {
                     info.content = action.status.clone();
                 },
 
-                // paste the file
+                // paste the file / directory
                 Event::Key(Key::Char('P')) =>  {
                     action.paste();
                     filelist.scroll_top();
@@ -197,6 +234,14 @@ fn rufm() {
                     info.update = false;
                     info.content = action.status.clone();
                 },
+
+                // rename the file / directory
+                Event::Key(Key::Char('R')) => {
+                    // update info
+                    info.update = false;
+                    info.clear();
+                    selected = Selectable::Info;
+                }
 
 	            _ => {}
 	

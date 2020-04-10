@@ -1,5 +1,8 @@
 // import the needed trait
-use crate::widgets::traits::CustomParagraph; 
+use crate::widgets::traits::{
+    CustomParagraph,
+    EditableParagraph
+};
 
 pub struct Search {
 
@@ -40,6 +43,18 @@ impl CustomParagraph for Search  {
 
     fn items(&self) -> String {
         self.content.clone()
+    }
+
+}
+
+impl EditableParagraph for Search {
+
+    fn get_content(&self) -> String {
+        self.content.clone()
+    }
+
+    fn set_content(&mut self, new: String) {
+        self.content = new;
     }
 
 }

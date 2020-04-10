@@ -69,3 +69,33 @@ pub trait CustomParagraph {
     }
 
 }
+
+// gets implemented on all paragraphs
+pub trait EditableParagraph {
+
+    // return all important items
+    // for displaying
+    fn get_content(&self) -> String;
+    fn set_content(&mut self, new: String);
+
+    // updates the string
+    // with the input char
+    fn add(&mut self, new: String) {
+        self.set_content(format!("{}{}", self.get_content(), new));
+    }
+
+    // pop the last element of the string
+    // = Backspace
+    fn delete(&mut self) {
+        let mut c = self.get_content();
+        c.pop();
+        self.set_content(c);
+    }
+
+    // clear the content
+    // get called when new search started
+    fn clear(&mut self) {
+        self.set_content(String::new());
+    }
+
+}

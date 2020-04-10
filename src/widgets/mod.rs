@@ -31,8 +31,11 @@ pub use paragraphs::preview::Preview;
 pub use paragraphs::search::Search;
 pub use paragraphs::info::Info;
 
-pub use traits::CustomList;
-pub use traits::CustomParagraph;
+pub use traits::{
+    CustomList,
+    CustomParagraph,
+    EditableParagraph
+};
 
 pub use render::draw;
 
@@ -40,6 +43,7 @@ pub use render::draw;
 // be selected -> scrollable or editable
 pub enum Selectable {
 
+    Info,
     Search,
     FileList,
     Favourites

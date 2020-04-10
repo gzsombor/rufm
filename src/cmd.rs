@@ -1,13 +1,13 @@
 // cmd line arguments
 use std::env::{
-    args,
+    args, 
     set_current_dir
 };
+
 use std::process::exit;
 
 // evaluate cmd arguments
 pub fn eval() {
-
     // get the cmd arguments
     let args: Vec<String> = args().collect();
     let mut args = args[1..].iter();
@@ -27,16 +27,15 @@ pub fn eval() {
                     let next_arg = args.next();
                     match next_arg {
                         Some(v) => change(v.clone()),
-                        None => help()
+                        None => help(),
                     }
-                },
+                }
                 _ => {}
-            }
+            },
             // else, stop the function
             None => break,
         }
     }
-
 }
 
 // help menu
@@ -48,9 +47,10 @@ fn help() {
     exit(1);
 }
 
+// changes to target directory
 fn change(target: String) {
     match set_current_dir(target.clone()) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(_) => {
             println!("\nCould not change to {}, aborting ...", target);
             exit(1);

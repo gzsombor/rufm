@@ -152,6 +152,11 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // color the selected list
         match selected {
 
+            Selectable::Info => {
+                // add colored border
+                info_pgraph = info_pgraph.block(custom_block.title(" Input ").border_style(custom_border_style_selected));
+            },
+
             Selectable::Search => {
                 // add colored border
                 search_pgraph = search_pgraph.block(custom_block.title(" Search ").border_style(custom_border_style_selected));
