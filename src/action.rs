@@ -111,7 +111,7 @@ impl Action {
                 .clone()
                 .pop()
                 .expect("Could not pop last element!")
-                .to_string(),
+                .to_string()
         );
         // copy normaly if its a file
         // else recursively

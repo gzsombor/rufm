@@ -3,7 +3,8 @@
 use std::{
     fs::read_dir,
     env::set_current_dir,
-    iter::Iterator
+    iter::Iterator,
+    collections::HashMap
 };
 
 // import the needed trait
@@ -16,7 +17,8 @@ pub struct FileList {
     
     pub current: usize, // current selected item
     pub content: Vec<String>, // all items
-    pub update: bool // if update is needed
+    pub key: String, // the search key
+    pub sort_style: i8 // the sorting style; 0 = nothing, 1 = search, 2 = abc; 3 = len
 
 }
 
@@ -51,7 +53,8 @@ impl FileList {
 
             current: 0,
             content: cwd_content,
-            update: true
+            key: String::new(),
+            sort_style: 0
 
         }
     
@@ -64,13 +67,12 @@ impl FileList {
 
     // update the list
     pub fn update(&mut self) {
-        if self.update {
-            // get the files
-            let files = Self::get_dir();
-            if files.is_empty() {
-                self.content = vec!["Nothing found!".to_string()];
-            } else {
-                self.content = files;
+        match self.sort_style {
+            1 => {
+                self.sort_search();
+            },
+            _ => {
+                self.sort_default();
             }
         }
     }
@@ -79,37 +81,45 @@ impl FileList {
     pub fn change_dir_back(&mut self) {
         // get all elements off the cwd
         set_current_dir("..").expect("Not possible to change back!");
-        self.update = true;
     }
 
     // change directory to current selected element
     pub fn change_dir_selected(&mut self) {
-
         // current selected element
         let path = &self.content[self.current];
         match set_current_dir(path.as_str()) {
             Ok(_) => {},
             Err(_) => {}
-        }; self.update = true;
+        }
+    }
 
+    // no sorting
+    fn sort_default(&mut self) {
+        // get the files
+        let files = Self::get_dir();
+        if files.is_empty() {
+            self.content = vec!["Nothing found!".to_string()];
+        } else {
+            self.content = files;
+        }
     }
 
     // sort the files after the input string
-    pub fn sort(&mut self, key: String) {
+    fn sort_search(&mut self) {
 
-        if key.len() == 0 { 
-            self.content = Self::get_dir();
+        if self.key.len() == 0 { 
+            self.sort_default();
             return;
         }
-            
-        // empty the whole list
+           
+        // clear self.content
         self.content = Vec::new();
         // get all files of the cwd
         let current_filelist = Self::get_dir();
 
         // create new key
         for n in &current_filelist {
-            if n.contains(&key) { 
+            if n.contains(&self.key) { 
                 self.content.push(n.clone());
             }
         }
@@ -118,8 +128,16 @@ impl FileList {
              self.content = vec!["Nothing found!".to_string()];
         }
 
-        self.update = false;
+    }
 
+    // sorts the filelist after length of the name
+    fn sort_len(&mut self) {
+        return;
+    }
+
+    // sorts the filelist after abc
+    fn sort_abc(&mut self) {
+        return;
     }
 
 }

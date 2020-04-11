@@ -15,12 +15,12 @@ use std::{
 pub struct Config {
 
     pub colors: Colors,
-    pub favourites: Favs
+    pub favourites: Favourites
 
 }
 
 #[derive(Deserialize)]
-pub struct Favs {
+pub struct Favourites {
 
     pub names: Vec<String>,
     pub paths: Vec<String>
@@ -46,31 +46,64 @@ pub struct Color {
 }
 
 
-pub fn create_config() -> Config {
+impl Config {
+
+    // default configuration
+    pub fn default() -> Self {
+
+        Self {
+            colors: Colors {
+                border_normal: [255, 255, 255],
+                border_highlight: [158, 232, 255],
+                text_highlight: Color {
+                    fg: Some([158, 232, 255]),
+                    bg: None
+                }
+            },
+            favourites: Favourites {
+                names: vec!["Root".to_string()],
+                paths: vec!["/".to_string()]
+            }
+        }
+
+    }
+
+}
+
+
+pub fn create_config(filename: String) -> Config {
     
     // read from the file
     let mut content = String::new();
-
     // get the home directory
-    let home = var("HOME").expect("Could not get $HOME");
+    let home = var("HOME").expect("Could not get $HOME!");
+    let filename = filename.replace("~", home.as_str().clone());
 
-    // compose the filename
-    let filename = String::from(home + "/.config/rufm/config.ini");
     match File::open(&filename) {
+
         Ok(v) => {
+
             // if it exists, assign it
             let mut config_file = v;
             // read it
             config_file.read_to_string(&mut content).expect("Could not read the config file!");
+
             // parse the variable to the Config struct
-            let config: Config = toml::from_str(&content).expect("Could not parse toml!");
-            // return the config
+            let mut config: Config = toml::from_str(&content).expect("Could not parse toml!");
+            // replace all ~ with $HOME var
+            config.favourites.paths = config.favourites.paths.iter()
+                .map(|x| x.replace("~", home.as_str().clone())).collect();
+            
             config
+
         }
+
         Err(_) => {
             // else panic, because everything depends on the configuration
-            panic!("Could not read configuration file at '$HOME/.config/rufm/config.ini'!");
+            println!("Could not read configuration file at '$HOME/.config/rufm/config.ini'! Using default configuration ...");
+            Config::default()
         }
+
     }
 
 }

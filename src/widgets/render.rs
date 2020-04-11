@@ -9,22 +9,17 @@ use tui::widgets::{Paragraph, Block, Borders, SelectableList};
 
 use super::*;
 
-use crate::config::create_config;
+use crate::config::Config;
 
 // draws the layout
 // parameters are a little messed up
 pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
-    (selected: &Selectable, info: &Info, preview: &Preview,
+    (selected: &Selectable, config: &Config, info: &Info, preview: &Preview,
     favs: &Favourites, search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
 
-
-    // read from the configuration and
-    // update specific values
-    let config = create_config();
-    
-    let b_h = config.colors.border_highlight;
-    let b_n = config.colors.border_normal;
-    let t_h = config.colors.text_highlight;
+    let b_h = &config.colors.border_highlight;
+    let b_n = &config.colors.border_normal;
+    let t_h = &config.colors.text_highlight;
 
     // custom colors
     let mut custom_select_style = Style::default()
@@ -48,9 +43,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
     // custom block
     let custom_block = Block::default().borders(Borders::ALL);
 
-
     terminal.draw(|mut f| {
-
 
         // layout
         

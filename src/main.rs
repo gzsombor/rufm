@@ -25,7 +25,7 @@ use config::create_config;
 use action::Action;
 
 // cmd
-use cmd::eval;
+use cmd::Options;
 
 // backend
 use termion::raw::IntoRawMode;
@@ -39,7 +39,6 @@ use tui::backend::{TermionBackend};
 // entry point
 fn main() {
 
-    eval();
     rufm();
 
 }
@@ -57,17 +56,21 @@ fn rufm() {
     // clear the terminal
     terminal.clear().expect("Could not clear the terminal!");
 
-    // get the config
-    let config = create_config();
-
+    // evaluate arguments
+    let mut options = Options::new();
+    options.eval();
+    // create configuration
+    let config = create_config(options.config);
+    
     // Widgets
     let mut search = widgets::Search::new();
     let mut filelist = widgets::FileList::new();
     let mut preview = widgets::Preview::new();
     let mut favourites = widgets::Favourites::new(
-        config.favourites.names,
-        config.favourites.paths
-    ); let mut info = widgets::Info::new();
+        config.favourites.names.clone(),
+        config.favourites.paths.clone()
+    );
+    let mut info = widgets::Info::new();
 
     // current selected element
     let mut selected = Selectable::FileList;
@@ -83,7 +86,7 @@ fn rufm() {
     info.update(filelist.get_current());
 
     // draw the layout for the first time   
-    draw(&selected, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+    draw(&selected, &config, &info, &preview, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -137,21 +140,22 @@ fn rufm() {
                 // sort the files -> end the search input
                 Event::Key(Key::Char('\n')) => {
                     filelist.scroll_top();
-                    filelist.sort(search.items());
-                    filelist.update = false;
+                    // set the key and sort style
+                    filelist.key = search.items();
+                    filelist.sort_style = 1;
                     selected = Selectable::FileList;
                 },
 
                 // add the char to the string
                 Event::Key(Key::Char(c)) => {
                     search.add(c.to_string());
+                    filelist.key = search.items();
+                    filelist.sort_style = 1;
                     filelist.scroll_top();
-                    filelist.sort(search.items());
                 },
 
                 // exit search mode
                 Event::Key(Key::Esc) => {
-                    filelist.update = true;
                     search.clear();
                     selected = Selectable::FileList;
                 },
@@ -160,7 +164,8 @@ fn rufm() {
                 Event::Key(Key::Backspace) => {
                     search.delete();
                     filelist.scroll_top();
-                    filelist.sort(search.items());
+                    filelist.key = search.items();
+                    filelist.sort_style = 1;
                 },
 
                 _ => {}
@@ -240,6 +245,7 @@ fn rufm() {
                     // update info
                     info.update = false;
                     info.clear();
+                    // change selected field
                     selected = Selectable::Info;
                 }
 
@@ -297,7 +303,7 @@ fn rufm() {
         info.update(filelist.get_current());
 
         // draw the layout
-        draw(&selected, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+        draw(&selected, &config, &info, &preview, &favourites, &search, &filelist, &mut terminal);
         
     }
     
