@@ -51,7 +51,7 @@ Use the help menu for more information and avaible flags.
 rufm --help
 ```
 
-To configure rufm you have to edit the configuration file located at "~/.config/rufm/config.ini".
+To configure rufm you have to edit or create the configuration file located at "~/.config/rufm/config.ini". Alternatively you can use the "-c" flag to point to another configuratin file.
 The default should look like this:
 ``` toml
 # rgb color codes
@@ -66,8 +66,8 @@ text_highlight.fg = [158, 232, 255]
 
 # favourites
 [favourites]
-names = ["Root", "Home", "Dotfiles", "Projects"]
-paths = ["/", "~", "~/dotfiles", "~/projects"]
+names = ["Root"]
+paths = ["/"]
 ```
 
 # 

@@ -5,6 +5,7 @@ use std::env::{
 };
 
 use std::process::exit;
+use std::path::Path;
 
 pub struct Options {
     pub config: String
@@ -64,11 +65,13 @@ impl Options {
 
     // help menu
     fn help(&self) {
-        println!("\nRufm - A rustical file manager");
-        println!("-------------------------------------------\n");
-        println!("Use -h | --help   to display this help menu");
-        println!("Use -d <path>     to change the directory");
-        println!("Use -c <path>     to change the path to the config file");
+        println!("
+\nRufm - A rustical file manager
+-------------------------------------------\n
+Use -h | --help   to display this help menu
+Use -d <path>     to change the directory
+Use -c <path>     to change the path to the config file\n
+");
         exit(1);
     }
 
@@ -77,7 +80,7 @@ impl Options {
         match set_current_dir(target.clone()) {
             Ok(_) => {}
             Err(_) => {
-                println!("\nCould not change to {}, aborting ...", target);
+                println!("Could not change to {}, aborting ...", target);
                 exit(1);
             }
         }
@@ -85,7 +88,13 @@ impl Options {
 
     // sets new path for config file
     fn config(&mut self, target: String) {
-        self.config = target;
+        let p = Path::new(&target);
+        if p.is_file() {
+            self.config = target;
+        } else {
+            println!("No such file: {}", target);
+            exit(1);
+        }
     }
 
 }

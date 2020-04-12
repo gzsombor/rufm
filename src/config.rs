@@ -5,7 +5,7 @@ use serde_derive::Deserialize;
 use std::{
     env::var,
     fs::File,
-    io::prelude::*
+    io::prelude::Read
 };
 
 
@@ -96,7 +96,7 @@ pub fn create_config(filename: String) -> Config {
             
             config
 
-        }
+        },
 
         Err(_) => {
             // else panic, because everything depends on the configuration

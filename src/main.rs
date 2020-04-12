@@ -46,6 +46,12 @@ fn main() {
 // tui
 fn rufm() {
 
+    // evaluate arguments
+    let mut options = Options::new();
+    options.eval();
+    // create configuration
+    let config = create_config(options.config);
+
     // creating the terminal
     let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
     let backend = TermionBackend::new(stdout);
@@ -55,12 +61,6 @@ fn rufm() {
 
     // clear the terminal
     terminal.clear().expect("Could not clear the terminal!");
-
-    // evaluate arguments
-    let mut options = Options::new();
-    options.eval();
-    // create configuration
-    let config = create_config(options.config);
     
     // Widgets
     let mut search = widgets::Search::new();
