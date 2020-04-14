@@ -8,10 +8,17 @@ use std::{
     fs::metadata
 };
 
+pub enum InfoMode {
+    Status,
+    Information,
+    Confirmation,
+    Input
+}
+
 pub struct Info {
 
     pub content: String,
-    pub update: bool
+    pub mode: InfoMode // the current mode
 
 }
 
@@ -21,16 +28,17 @@ impl Info {
     pub fn new() -> Self {
         Self {
             content: String::new(),
-            update: true
+            mode: InfoMode::Information
         }
     }
 
     // update the content with information on file
     pub fn update(&mut self, name: String) {
     
-        if self.update {
-            // create metadata
-            match metadata(name) {
+        match self.mode {
+
+            InfoMode::Information => match metadata(name) {
+
                 Ok(v) => {
                     let md = v;
                     // get the info
@@ -40,13 +48,19 @@ impl Info {
                     // update the content var
                     self.content = format!("{}  {}  {:>5}", kind, readonly, len);
                 },
+
                 Err(_) => {
                     self.content = "No information avaible!".to_string();
                 }
-            };
-        } else {
-            self.update = true;  
+
+            },
+
+            InfoMode::Status => self.mode = InfoMode::Information,
+
+            _ => {}
+
         }
+
     }
 
 }

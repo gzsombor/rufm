@@ -30,6 +30,7 @@ pub use lists::favourites::Favourites;
 pub use paragraphs::preview::Preview;
 pub use paragraphs::search::Search;
 pub use paragraphs::info::Info;
+pub use paragraphs::info::InfoMode;
 
 pub use traits::{
     CustomList,

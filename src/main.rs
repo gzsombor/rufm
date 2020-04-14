@@ -11,18 +11,29 @@ use std::io::{
 
 // widgets
 use widgets::{
-    Selectable,
+
+    // traits
     CustomList,
     CustomParagraph,
     EditableParagraph,
+
+    // enums
+    InfoMode,
+    Selectable,
+
+    // functions
     draw
+
 };
 
 // config
 use config::create_config;
 
 // action
-use action::Action;
+use action::{
+    Action,
+    InputConfirmAction
+};
 
 // cmd
 use cmd::Options;
@@ -101,36 +112,105 @@ fn rufm() {
 
             Selectable::Info => {
                
-                info.update = false;
+                match info.mode {
 
-                match event {
-                
-                    // sort the files -> end the search input
-                    Event::Key(Key::Char('\n')) => {
-                        action.rename(filelist.get_current(), info.content.clone());
-                        // update info
-                        info.content = action.status.clone();
-                        selected = Selectable::FileList;
+                    InfoMode::Input => match event {
+
+                        // run the current action
+                        Event::Key(Key::Char('\n')) => {
+
+                            match action.current {
+                            
+                                InputConfirmAction::Rename => {
+
+                                    action.rename(filelist.get_current(), info.content.clone());
+                                    // update info
+                                    info.content = action.status.clone();
+                                    info.mode = InfoMode::Status;
+                                    selected = Selectable::FileList;
+                                    // deselect action
+                                    action.current = InputConfirmAction::Nothing;
+
+                                },
+
+                                _ => {}
+
+                            }
+
+                        },
+    
+                        // add the char to the string
+                        Event::Key(Key::Char(c)) => {
+                            info.add(c.to_string());
+                        },
+    
+                        // exit search mode
+                        Event::Key(Key::Esc) => {
+
+                            // clear info
+                            info.clear();
+                            info.mode = InfoMode::Information;
+                            selected = Selectable::FileList;
+                            // deselct action
+                            action.current = InputConfirmAction::Nothing;
+
+                        },
+    
+                        // remove last char
+                        Event::Key(Key::Backspace) => {
+                            info.delete();
+                        },
+    
+                        _ => {}
+                    
                     },
 
-                    // add the char to the string
-                    Event::Key(Key::Char(c)) => {
-                        info.add(c.to_string());
-                    },
+                    InfoMode::Confirmation => match event {
 
-                    // exit search mode
-                    Event::Key(Key::Esc) => {
-                        info.clear();
-                        selected = Selectable::FileList;
-                    },
+                        // sort the files -> end the search input
+                        Event::Key(Key::Char('y')) => {
 
-                    // remove last char
-                    Event::Key(Key::Backspace) => {
-                        info.delete();
-                    },
+                            match action.current {
+
+                                InputConfirmAction::Delete => {
+
+                                    // delete the file
+                                    action.delete(filelist.get_current());
+                                    // update info
+                                    info.content = action.status.clone();
+                                    info.mode = InfoMode::Status;
+                                    selected = Selectable::FileList;
+                                    // scroll to the top of the filelist
+                                    filelist.scroll_top();
+                                    // deselect action
+                                    action.current = InputConfirmAction::Nothing;
+
+                                }
+
+                                _ => {}
+
+                            }
+
+                        },
+    
+                        // exit search mode
+                        Event::Key(Key::Esc) | Event::Key(Key::Char('n')) => {
+
+                            // clear the info
+                            info.clear();
+                            info.mode = InfoMode::Information;
+                            selected = Selectable::FileList;
+                            // deselect action
+                            action.current = InputConfirmAction::Nothing;
+
+                        },
+    
+                        _ => {}
+
+                    }
 
                     _ => {}
-                
+
                 }
 
             },
@@ -215,11 +295,13 @@ fn rufm() {
 
                 // delete the file / directory 
                 Event::Key(Key::Char('D')) => {
-                    action.delete(filelist.get_current());
-                    filelist.scroll_top();
                     // update the info graph
-                    info.update = false;
-                    info.content = action.status.clone();
+                    info.content = "Really? (y/n)".to_string();
+                    info.mode = InfoMode::Confirmation;
+                    // change selected field
+                    selected = Selectable::Info;
+                    // select action
+                    action.current = InputConfirmAction::Delete;
                 },
 
                 // copy the file / directory
@@ -227,8 +309,8 @@ fn rufm() {
                     action.copy(filelist.get_current());
                     filelist.scroll_top();
                     // update info
-                    info.update = false;
                     info.content = action.status.clone();
+                    info.mode = InfoMode::Status;
                 },
 
                 // paste the file / directory
@@ -236,17 +318,19 @@ fn rufm() {
                     action.paste();
                     filelist.scroll_top();
                     // update info
-                    info.update = false;
                     info.content = action.status.clone();
+                    info.mode = InfoMode::Status;
                 },
 
                 // rename the file / directory
                 Event::Key(Key::Char('R')) => {
                     // update info
-                    info.update = false;
                     info.clear();
                     // change selected field
                     selected = Selectable::Info;
+                    info.mode = InfoMode::Input;
+                    // select action
+                    action.current = InputConfirmAction::Rename;
                 },
 
                 // toggle sorting

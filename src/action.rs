@@ -9,12 +9,25 @@ use std::{
     path::Path,
 };
 
-pub struct Action {
-    pub clipboard: String, // path of a file or directory
-    pub status: String,    // status message, display in info widget
+// action which need some kind of
+// input of confirmation, so I have
+// to know, which action I have to execute afterwards
+pub enum InputConfirmAction {
+
+    Rename,
+    Delete,
+    Nothing
+
 }
 
-// add action methods
+pub struct Action {
+
+    pub clipboard: String, // path of a file or directory
+    pub status: String,    // status message, display in info widget
+    pub current: InputConfirmAction // possible action with an input or confirm step
+
+}
+
 impl Action {
 
     // create a new action
@@ -22,6 +35,7 @@ impl Action {
         Self {
             clipboard: String::new(),
             status: String::new(),
+            current: InputConfirmAction::Nothing
         }
     }
 
@@ -33,28 +47,28 @@ impl Action {
 
     // gets all elements in the cwd
     fn get_dir(path: String) -> Vec<String> {
+
         read_dir(path)
             .expect("Could not read directory!")
             .map(|res| {
                 res.map(|e| {
                     let mut r = e.path().to_str().unwrap().to_string(); // get the path and put it in a list
-                    if &r[0..2] == "./" {
+                    // removes the annoying "./" before the elements
+                    if &r[0..2] == "./" { 
                         r.remove(0);
                         r.remove(0);
                     };
                     r
                 })
             })
-            .map(|x| x.unwrap())
-            .collect::<Vec<String>>()
+            .map(|x| x.unwrap()) // gets the actual values
+            .collect::<Vec<String>>() // saves them in a Vector of Strings
+
     }
 
     // copies a directory recursively
     pub fn copy_recursively(&self, name: String) {
-        // removes the last element
-        // let cp = self.clipboard.clone();
-        // let cp = &cp.split("/").collect::<Vec<&str>>();
-        // let cp = &cp[0..cp.len() - 1].join("/");
+
         // the target directory to copy
         let mut n = name.split("/").collect::<Vec<&str>>();
         let n = &n[1..n.len()];
@@ -78,17 +92,22 @@ impl Action {
                 .pop()
                 .unwrap()
                 .to_string();
+            // check if the element is a
+            // directory or a file
             let p = Path::new(&c);
             if p.is_dir() {
+                // copy the directory recursively
                 let new_dir = format!("{}/{}", name.clone(), c_name);
                 self.copy_recursively(new_dir);
             } else {
-                // copy the file
+                // copy the file normally
                 let from = format!("{}/{}", target.clone(), c_name);
                 let to = format!("{}/{}", name.clone(), c_name);
                 copy(from, to).expect("Could not copy the directory!");
             }
         }
+
+
     }
 
     // adds the name to the clipboard
@@ -103,6 +122,7 @@ impl Action {
 
     // pastes the clipboard to current location
     pub fn paste(&mut self) {
+
         // get the filename
         let filename = self.check(
             self.clipboard
@@ -124,11 +144,13 @@ impl Action {
         }
         // update the status
         self.status = format!("Pasted {}!", &filename);
+
     }
 
     // checks if filename exists,
     // adds _copy and restarts
     fn check(&self, name: String) -> String {
+
         // check if file with similar name already exists
         // read the dir and convert the result a string vector
         let cwd_content = Action::get_dir("./".to_string());
@@ -137,11 +159,15 @@ impl Action {
                 return self.check(name.clone() + "_copy");
             }
         }
+        // return the name, if
+        // it wasn't found in the current directory
         name
+
     }
 
     // deletes the specified directory
     pub fn delete(&mut self, name: String) {
+
         // create path to access information
         let path = Path::new(&name);
         // remove it
@@ -158,12 +184,15 @@ impl Action {
         }
         // update the status
         self.status = format!("Deleted {}!", name);
+
     }
 
     // renames the element
     pub fn rename(&mut self, name: String, new: String) {
+        
         rename(name.clone(), new.clone());
         self.status = format!("Renamed {} to {}!", name, new);
+
     }
     
 }
