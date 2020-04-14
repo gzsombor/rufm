@@ -66,8 +66,8 @@ impl Options {
     // help menu
     fn help(&self) {
         println!("
-Rufm - A rustical file manager
-------------------------------
+Rufm - A file manager written in Rust
+-------------------------------------
 
 Usage: 
     rufm [options]
