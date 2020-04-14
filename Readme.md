@@ -2,6 +2,11 @@
 
 Rufm is a file manager written in rust with a responsive terminal user interface (tui) and basic functionality for linux.
 
+<img src="images/fullsize.png" alt="Rufm full-sized"
+	style="float: left; margin-right = 1%" width="450" height="300" />
+<img src="images/smallsize.png" alt="Rufm small-sized"
+	width="450" height="300" />
+
 # 
 ## Content
 
