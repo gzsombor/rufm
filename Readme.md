@@ -81,8 +81,13 @@ Capital letters stand for actions, non-capital letters for navigation.
 - C => Copies a file or directory,
 - P => Pastes a copied file or directory,
 - R => Renames a file or directory
+
+- F => Switch to the favourites tab
+
 - / => Switch to search
+
 - Esc => Exit and switch back to the filelist
+- Enter => Select the element
 
 h, j, k, l (vim keys) or the four arrow keys can be used for navigation.
 
