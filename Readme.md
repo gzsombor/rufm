@@ -1,4 +1,4 @@
-# Rufm - **Ru**stical **Fi**le **Ma**nager
+# Rufm - **Ru**st **Fi**le **Ma**nager
 
 Rufm is a file manager written in rust with a responsive terminal user interface (tui) and basic functionality for linux.
 
@@ -44,7 +44,7 @@ sudo cp rufm /usr/bin/rufm
 This project is in it's early states. Currently there aren't many features avaible.
 I hope this is going to change in the near future.
 
-To use rufm just type "rufm" into the terminal and it should start, only if you copied it somewhere in your PATH.
+To use rufm just type "rufm" into the terminal and it should start (only if you copied it somewhere in your PATH).
 
 Use the help menu for more information and avaible flags.
 ``` bash
@@ -53,22 +53,38 @@ rufm --help
 
 To configure rufm you have to edit or create the configuration file located at "~/.config/rufm/config.ini". Alternatively you can use the "-c" flag to point to another configuratin file.
 The default should look like this:
+
 ``` toml
 # rgb color codes
 # -> [red, green, blue]
-# to use no colors, just comment them
 [colors]
 border_normal = [255, 255, 255]
 border_highlight = [158, 232, 255]
 
-# highlighting of the selected text
+# to use no colors, just comment them out 
 text_highlight.fg = [158, 232, 255]
+# text_highlight.bg = [0, 0, 0]
 
 # favourites
 [favourites]
-names = ["Root"]
-paths = ["/"]
+names = ["Root", "Home"]
+paths = ["/", "~"]
 ```
+
+Note that names and favourites have to be of the same length.
+
+Keyboard shortcuts:
+
+Capital letters stand for actions, non-capital letters for navigation.
+
+- D => Deletes a file or directory,
+- C => Copies a file or directory,
+- P => Pastes a copied file or directory,
+- R => Renames a file or directory
+- / => Switch to search
+- Esc => Exit and switch back to the filelist
+
+h, j, k, l (vim keys) or the four arrow keys can be used for navigation.
 
 # 
 ## Dependencies
@@ -78,6 +94,12 @@ To draw the tui I used:
 - termion => https://github.com/redox-os/termion
 
 To read from the configuration file I used:
-- toml 
-- serde
-- serde_derive
+- toml => https://github.com/alexcrichton/toml-rs
+- serde and serde_derive => https://github.com/serde-rs/serde
+
+#
+## Other stuff
+
+If you like it, let me know what you would like to have implemented next.
+I personally thought of a config setting, which allows you to remap keys.
+Have fun!
