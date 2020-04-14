@@ -54,7 +54,7 @@ impl Options {
                             None => self.help()
                         }
                     },
-                    _ => {}
+                    _ => self.help()
                 },
                 // else, stop the function
                 None => break,
@@ -66,11 +66,16 @@ impl Options {
     // help menu
     fn help(&self) {
         println!("
-\nRufm - A rustical file manager
--------------------------------------------\n
-Use -h | --help   to display this help menu
-Use -d <path>     to change the directory
-Use -c <path>     to change the path to the config file\n
+Rufm - A rustical file manager
+------------------------------
+
+Usage: 
+    rufm [options]
+
+Options:
+    -h | --help   to display this help menu
+    -d <path>     to change the directory
+    -c <path>     to change the path to the config file
 ");
         exit(1);
     }

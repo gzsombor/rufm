@@ -142,7 +142,7 @@ fn rufm() {
                     filelist.scroll_top();
                     // set the key and sort style
                     filelist.key = search.items();
-                    filelist.sort_style = 1;
+                    filelist.sort_style = 2;
                     selected = Selectable::FileList;
                 },
 
@@ -150,7 +150,7 @@ fn rufm() {
                 Event::Key(Key::Char(c)) => {
                     search.add(c.to_string());
                     filelist.key = search.items();
-                    filelist.sort_style = 1;
+                    filelist.sort_style = 2;
                     filelist.scroll_top();
                 },
 
@@ -165,7 +165,7 @@ fn rufm() {
                     search.delete();
                     filelist.scroll_top();
                     filelist.key = search.items();
-                    filelist.sort_style = 1;
+                    filelist.sort_style = 2;
                 },
 
                 _ => {}
@@ -247,7 +247,13 @@ fn rufm() {
                     info.clear();
                     // change selected field
                     selected = Selectable::Info;
-                }
+                },
+
+                // toggle sorting
+                Event::Key(Key::Char('\t')) => {
+                    // update the sorting style
+                    filelist.toggle_sort_style();
+                },
 
 	            _ => {}
 	

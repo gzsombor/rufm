@@ -68,12 +68,9 @@ impl FileList {
     // update the list
     pub fn update(&mut self) {
         match self.sort_style {
-            1 => {
-                self.sort_search();
-            },
-            _ => {
-                self.sort_default();
-            }
+            1 => { self.sort_len(); },
+            2 => { self.sort_search(); },
+            _ => { self.sort_default(); }
         }
     }
 
@@ -132,12 +129,49 @@ impl FileList {
 
     // sorts the filelist after length of the name
     fn sort_len(&mut self) {
-        return;
+        // clear self.content
+        self.content = Vec::new();
+        // get all files of the cwd
+        let current_filelist = Self::get_dir();
+
+        for f in current_filelist {
+            let lf = f.len();
+            let mut insert = false;
+            let mut pos = 0;
+            for (i, s) in self.content.iter().enumerate() {
+                let ls = s.len();
+                if lf < ls {
+                    if !insert { 
+                        pos = i; 
+                        insert = true; 
+                    }
+                }
+            }
+            if insert {
+                self.content.insert(pos, f); 
+            } else { 
+                self.content.push(f);
+           
+            }
+        }
+
+        if self.content.is_empty() {
+             self.content = vec!["Nothing found!".to_string()];
+        }
     }
 
     // sorts the filelist after abc
     fn sort_abc(&mut self) {
         return;
+    }
+
+    // switches between the 3 avaible sorting styles
+    pub fn toggle_sort_style(&mut self) {
+        if self.sort_style == 1 {
+            self.sort_style = 0;
+        } else {
+            self.sort_style += 1;
+        }
     }
 
 }
