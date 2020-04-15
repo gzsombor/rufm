@@ -49,10 +49,10 @@ pub struct Color {
 #[derive(Deserialize)]
 pub struct Keys {
     
-    pub rename: char,
-    pub copy: char,
-    pub paste: char,
-    pub delete: char
+    pub rename: String,
+    pub copy: String,
+    pub paste: String,
+    pub delete: String
 
 }
 
@@ -76,10 +76,10 @@ impl Config {
                 paths: vec!["/".to_string()]
             },
             keys: Keys {
-                rename: 'R',
-                copy: 'C',
-                paste: 'P',
-                delete: 'D'
+                rename: String::from("R"),
+                copy: String::from("C"),
+                paste: String::from("P"),
+                delete: String::from("D")
             }
         }
 

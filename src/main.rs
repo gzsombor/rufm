@@ -62,6 +62,11 @@ fn rufm() {
     options.eval();
     // create configuration
     let config = create_config(options.config);
+    // keybindings
+    let RENAME = config.keys.rename.chars().nth(0).expect("Keybinding not a single letter!");
+    let COPY = config.keys.copy.chars().nth(0).expect("Keybinding not a single letter!");
+    let PASTE = config.keys.paste.chars().nth(0).expect("Keybinding not a single letter!");
+    let DELETE = config.keys.delete.chars().nth(0).expect("Keybinding not a single letter!");
 
     // creating the terminal
     let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
@@ -294,7 +299,7 @@ fn rufm() {
                 },
 
                 // delete the file / directory 
-                Event::Key(Key::Char(config.keys.delete)) => {
+                Event::Key(Key::Char(DELETE)) => {
                     // update the info graph
                     info.content = "Really? (y/n)".to_string();
                     info.mode = InfoMode::Confirmation;
@@ -305,7 +310,7 @@ fn rufm() {
                 },
 
                 // copy the file / directory
-                Event::Key(Key::Char(config.keys.copy)) => {
+                Event::Key(Key::Char(COPY)) => {
                     action.copy(filelist.get_current());
                     filelist.scroll_top();
                     // update info
@@ -314,7 +319,7 @@ fn rufm() {
                 },
 
                 // paste the file / directory
-                Event::Key(Key::Char(config.keys.paste)) =>  {
+                Event::Key(Key::Char(PASTE)) =>  {
                     action.paste();
                     filelist.scroll_top();
                     // update info
@@ -323,7 +328,7 @@ fn rufm() {
                 },
 
                 // rename the file / directory
-                Event::Key(Key::Char(config.keys.rename)) => {
+                Event::Key(Key::Char(RENAME)) => {
                     // update info
                     info.clear();
                     // change selected field
