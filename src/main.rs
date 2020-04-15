@@ -189,7 +189,7 @@ fn rufm() {
                                     // deselect action
                                     action.current = InputConfirmAction::Nothing;
 
-                                }
+                                },
 
                                 _ => {}
 
@@ -298,7 +298,7 @@ fn rufm() {
                 },
 
                 // delete the file / directory 
-                Event::Key(Key::Char(key_delete)) => {
+                Event::Key(Key::Char(c)) if c == key_delete => {
                     // update the info graph
                     info.content = "Really? (y/n)".to_string();
                     info.mode = InfoMode::Confirmation;
@@ -309,7 +309,7 @@ fn rufm() {
                 },
 
                 // copy the file / directory
-                Event::Key(Key::Char(key_copy)) => {
+                Event::Key(Key::Char(c)) if c == key_copy => {
                     action.copy(filelist.get_current());
                     filelist.scroll_top();
                     // update info
@@ -318,7 +318,7 @@ fn rufm() {
                 },
 
                 // paste the file / directory
-                Event::Key(Key::Char(key_paste)) =>  {
+                Event::Key(Key::Char(c)) if c == key_paste =>  {
                     action.paste();
                     filelist.scroll_top();
                     // update info
@@ -327,7 +327,7 @@ fn rufm() {
                 },
 
                 // rename the file / directory
-                Event::Key(Key::Char(key_rename)) => {
+                Event::Key(Key::Char(c)) if c == key_rename => {
                     // update info
                     info.clear();
                     // change selected field
