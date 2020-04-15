@@ -74,6 +74,19 @@ text_highlight.fg = [158, 232, 255]
 [favourites]
 names = ["Root", "Home"]
 paths = ["/", "~"]
+
+# keybindings
+# these all have to be
+# single letters, because they
+# get converted to a char
+[keys]
+rename = "R"
+copy = "C"
+paste = "P"
+delete = "D"
+search = "/"
+sort = "\t"
+favourites = "F"
 ```
 
 Note that names and favourites have to be of the same length.
@@ -88,11 +101,14 @@ Capital letters stand for actions, non-capital letters for navigation.
 - R => Renames a file or directory
 
 - F => Switch to the favourites tab
-
 - / => Switch to search
 
+- Tab => Change the sorting style (normal and length)
+
+All of the top keybindings can be changed in the configuration file.
+
 - Esc => Exit and switch back to the filelist
-- Enter => Select the element
+- Enter => What enter normally does
 
 h, j, k, l (vim keys) or the four arrow keys can be used for navigation.
 
