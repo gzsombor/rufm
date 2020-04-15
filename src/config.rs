@@ -14,6 +14,7 @@ use std::{
 #[derive(Deserialize)]
 pub struct Config {
 
+    pub keys: Keys,
     pub colors: Colors,
     pub favourites: Favourites
 
@@ -45,6 +46,16 @@ pub struct Color {
 
 }
 
+#[derive(Deserialize)]
+pub struct Keys {
+    
+    pub rename: char,
+    pub copy: char,
+    pub paste: char,
+    pub delete: char
+
+}
+
 
 impl Config {
 
@@ -63,6 +74,12 @@ impl Config {
             favourites: Favourites {
                 names: vec!["Root".to_string()],
                 paths: vec!["/".to_string()]
+            },
+            keys: Keys {
+                rename: 'R',
+                copy: 'C',
+                paste: 'P',
+                delete: 'D'
             }
         }
 
@@ -99,7 +116,7 @@ pub fn create_config(filename: String) -> Config {
         },
 
         Err(_) => {
-            // else panic, because everything depends on the configuration
+            // else use the default config
             println!("Could not read configuration file at '$HOME/.config/rufm/config.ini'! Using default configuration ...");
             Config::default()
         }

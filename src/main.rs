@@ -294,7 +294,7 @@ fn rufm() {
                 },
 
                 // delete the file / directory 
-                Event::Key(Key::Char('D')) => {
+                Event::Key(Key::Char(config.keys.delete)) => {
                     // update the info graph
                     info.content = "Really? (y/n)".to_string();
                     info.mode = InfoMode::Confirmation;
@@ -305,7 +305,7 @@ fn rufm() {
                 },
 
                 // copy the file / directory
-                Event::Key(Key::Char('C')) => {
+                Event::Key(Key::Char(config.keys.copy)) => {
                     action.copy(filelist.get_current());
                     filelist.scroll_top();
                     // update info
@@ -314,7 +314,7 @@ fn rufm() {
                 },
 
                 // paste the file / directory
-                Event::Key(Key::Char('P')) =>  {
+                Event::Key(Key::Char(config.keys.paste)) =>  {
                     action.paste();
                     filelist.scroll_top();
                     // update info
@@ -323,7 +323,7 @@ fn rufm() {
                 },
 
                 // rename the file / directory
-                Event::Key(Key::Char('R')) => {
+                Event::Key(Key::Char(config.keys.rename)) => {
                     // update info
                     info.clear();
                     // change selected field
