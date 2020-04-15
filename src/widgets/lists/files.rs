@@ -3,8 +3,7 @@
 use std::{
     fs::read_dir,
     env::set_current_dir,
-    iter::Iterator,
-    collections::HashMap
+    iter::Iterator
 };
 
 // import the needed trait

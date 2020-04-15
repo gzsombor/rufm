@@ -70,14 +70,14 @@ impl Action {
     pub fn copy_recursively(&self, name: String) {
 
         // the target directory to copy
-        let mut n = name.split("/").collect::<Vec<&str>>();
+        let n = name.split("/").collect::<Vec<&str>>();
         let n = &n[1..n.len()];
         let target = format!("{}/{}", self.clipboard.clone(), n.join("/"));
         // get all the elements of
         // the target directory
         let content = Action::get_dir(target.clone());
         // create the directory to copy to
-        create_dir(name.clone());
+        create_dir(name.clone()).expect(format!("Could not create directory {}!", name.clone()).as_str());
 
         // loop through all elements
         // and check if they're a dir:
@@ -190,7 +190,7 @@ impl Action {
     // renames the element
     pub fn rename(&mut self, name: String, new: String) {
         
-        rename(name.clone(), new.clone());
+        rename(name.clone(), new.clone()).expect(format!("Could not rename {} to {}!", name.clone(), new.clone()).as_str());
         self.status = format!("Renamed {} to {}!", name, new);
 
     }

@@ -52,7 +52,10 @@ pub struct Keys {
     pub rename: String,
     pub copy: String,
     pub paste: String,
-    pub delete: String
+    pub delete: String,
+    pub search: String,
+    pub sort: String,
+    pub favourites: String
 
 }
 
@@ -63,6 +66,7 @@ impl Config {
     pub fn default() -> Self {
 
         Self {
+
             colors: Colors {
                 border_normal: [255, 255, 255],
                 border_highlight: [158, 232, 255],
@@ -71,16 +75,22 @@ impl Config {
                     bg: None
                 }
             },
+
             favourites: Favourites {
                 names: vec!["Root".to_string()],
                 paths: vec!["/".to_string()]
             },
+
             keys: Keys {
                 rename: String::from("R"),
                 copy: String::from("C"),
                 paste: String::from("P"),
-                delete: String::from("D")
+                delete: String::from("D"),
+                search: String::from("/"),
+                sort: String::from("\t"),
+                favourites: String::from("F")
             }
+
         }
 
     }

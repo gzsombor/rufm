@@ -63,10 +63,13 @@ fn rufm() {
     // create configuration
     let config = create_config(options.config);
     // keybindings
-    let key_rename = config.keys.rename.chars().nth(0).expect("Keybinding not a single letter!");
-    let key_copy = config.keys.copy.chars().nth(0).expect("Keybinding not a single letter!");
-    let key_paste = config.keys.paste.chars().nth(0).expect("Keybinding not a single letter!");
-    let key_delete = config.keys.delete.chars().nth(0).expect("Keybinding not a single letter!");
+    let key_rename = config.keys.rename.chars().nth(0).expect("Keybinding (rename) not a single letter!");
+    let key_copy = config.keys.copy.chars().nth(0).expect("Keybinding (copy) not a single letter!");
+    let key_paste = config.keys.paste.chars().nth(0).expect("Keybinding (paste) not a single letter!");
+    let key_delete = config.keys.delete.chars().nth(0).expect("Keybinding (delete) not a single letter!");
+    let key_search = config.keys.search.chars().nth(0).expect("Keybinding (search) not a single letter!");
+    let key_sort = config.keys.sort.chars().nth(0).expect("Keybinding (sort) not a single letter!");
+    let key_favourites = config.keys.favourites.chars().nth(0).expect("Keybinding (favourites) not a single letter!");
 
     // creating the terminal
     let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
@@ -265,7 +268,7 @@ fn rufm() {
 	            },
 	
 	            // activate searching mode
-	            Event::Key(Key::Char('/')) => {
+	            Event::Key(Key::Char(c)) if c == key_search => {
 	                selected = Selectable::Search;
                     search.clear();
 	            },
@@ -293,7 +296,7 @@ fn rufm() {
 	            },
 	
                 // change to favourites
-                Event::Key(Key::Char('F')) => {
+                Event::Key(Key::Char(c)) if c == key_favourites => {
                     selected = Selectable::Favourites;
                 },
 
@@ -338,7 +341,7 @@ fn rufm() {
                 },
 
                 // toggle sorting
-                Event::Key(Key::Char('\t')) => {
+                Event::Key(Key::Char(c)) if c == key_sort => {
                     // update the sorting style
                     filelist.toggle_sort_style();
                 },
