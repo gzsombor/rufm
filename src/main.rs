@@ -63,10 +63,10 @@ fn rufm() {
     // create configuration
     let config = create_config(options.config);
     // keybindings
-    let RENAME = config.keys.rename.chars().nth(0).expect("Keybinding not a single letter!");
-    let COPY = config.keys.copy.chars().nth(0).expect("Keybinding not a single letter!");
-    let PASTE = config.keys.paste.chars().nth(0).expect("Keybinding not a single letter!");
-    let DELETE = config.keys.delete.chars().nth(0).expect("Keybinding not a single letter!");
+    let key_rename = config.keys.rename.chars().nth(0).expect("Keybinding not a single letter!");
+    let key_copy = config.keys.copy.chars().nth(0).expect("Keybinding not a single letter!");
+    let key_paste = config.keys.paste.chars().nth(0).expect("Keybinding not a single letter!");
+    let key_delete = config.keys.delete.chars().nth(0).expect("Keybinding not a single letter!");
 
     // creating the terminal
     let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
@@ -85,8 +85,7 @@ fn rufm() {
     let mut favourites = widgets::Favourites::new(
         config.favourites.names.clone(),
         config.favourites.paths.clone()
-    );
-    let mut info = widgets::Info::new();
+    ); let mut info = widgets::Info::new();
 
     // current selected element
     let mut selected = Selectable::FileList;
@@ -299,7 +298,7 @@ fn rufm() {
                 },
 
                 // delete the file / directory 
-                Event::Key(Key::Char(DELETE)) => {
+                Event::Key(Key::Char(key_delete)) => {
                     // update the info graph
                     info.content = "Really? (y/n)".to_string();
                     info.mode = InfoMode::Confirmation;
@@ -310,7 +309,7 @@ fn rufm() {
                 },
 
                 // copy the file / directory
-                Event::Key(Key::Char(COPY)) => {
+                Event::Key(Key::Char(key_copy)) => {
                     action.copy(filelist.get_current());
                     filelist.scroll_top();
                     // update info
@@ -319,7 +318,7 @@ fn rufm() {
                 },
 
                 // paste the file / directory
-                Event::Key(Key::Char(PASTE)) =>  {
+                Event::Key(Key::Char(key_paste)) =>  {
                     action.paste();
                     filelist.scroll_top();
                     // update info
@@ -328,7 +327,7 @@ fn rufm() {
                 },
 
                 // rename the file / directory
-                Event::Key(Key::Char(RENAME)) => {
+                Event::Key(Key::Char(key_rename)) => {
                     // update info
                     info.clear();
                     // change selected field
@@ -356,12 +355,6 @@ fn rufm() {
 	                break;
 	            },
 
-                // activate searching mode
-	            Event::Key(Key::Char('/')) => {
-	                selected = Selectable::Search;
-                    search.clear();
-	            },
-	
 	            // scroll down
 	            Event::Key(Key::Char('j')) | Event::Key(Key::Down) => {
 	                favourites.scroll_down();
