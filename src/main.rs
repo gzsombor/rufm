@@ -9,6 +9,9 @@ use std::io::{
     stdin
 };
 
+// gets the cwd
+use std::env::current_dir;
+
 // widgets
 use widgets::{
 
@@ -103,6 +106,10 @@ fn rufm() {
         // startup information
         Some(v) if v == true => {
             println!("\nConfiguration: {}", options.config.clone());
+            // move the cursor to the next line
+            let cursor_pos = terminal.get_cursor().unwrap().1;
+            terminal.set_cursor(0, cursor_pos).expect("Could not move cursor. Please disable the startup_info!");
+            println!("Working directory: {}", current_dir().expect("Could not get cwd!").display());
             // move the cursor to the next line
             let cursor_pos = terminal.get_cursor().unwrap().1;
             terminal.set_cursor(0, cursor_pos).expect("Could not move cursor. Please disable the startup_info!");

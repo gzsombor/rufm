@@ -40,7 +40,7 @@ impl Action {
     }
 
     // gets the cwd
-    fn get_cwd() -> String {
+    pub fn get_cwd() -> String {
         let cwd = current_dir().expect("Could not get cwd!");
         cwd.to_str().expect("Could not convert to str!").to_string()
     }
