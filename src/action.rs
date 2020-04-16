@@ -67,7 +67,7 @@ impl Action {
     }
 
     // copies a directory recursively
-    pub fn copy_recursively(&self, name: String) {
+    pub fn copy_recursively(&mut self, name: String) {
 
         // the target directory to copy
         let n = name.split("/").collect::<Vec<&str>>();
@@ -77,7 +77,13 @@ impl Action {
         // the target directory
         let content = Action::get_dir(target.clone());
         // create the directory to copy to
-        create_dir(name.clone()).expect(format!("Could not create directory {}!", name.clone()).as_str());
+        match create_dir(name.clone()) {
+            Ok(_) => {},
+            Err(_) => {
+                self.status = format!("Could not create directory {}!", name.clone());
+                return;
+            }
+        }
 
         // loop through all elements
         // and check if they're a dir:
@@ -103,7 +109,13 @@ impl Action {
                 // copy the file normally
                 let from = format!("{}/{}", target.clone(), c_name);
                 let to = format!("{}/{}", name.clone(), c_name);
-                copy(from, to).expect("Could not copy the directory!");
+                match copy(from.clone(), to.clone()) {
+                    Ok(_) => {},
+                    Err(_) => {
+                        self.status = format!("Could not copy {}!", from.clone());
+                        return;
+                    }
+                }
             }
         }
 
@@ -123,6 +135,16 @@ impl Action {
     // pastes the clipboard to current location
     pub fn paste(&mut self) {
 
+        // check if the file / directory in the clipboard exists
+        let p_clipboard = Path::new(&self.clipboard);
+        if self.clipboard == String::new() {
+            self.status = "Clipboard empty!".to_string();
+            return;
+        } else if !p_clipboard.exists() {
+            self.status = "Copied file does not exist anymore!".to_string();
+            return;
+        }
+
         // get the filename
         let filename = self.check(
             self.clipboard
@@ -133,12 +155,19 @@ impl Action {
                 .expect("Could not pop last element!")
                 .to_string()
         );
+
         // copy normaly if its a file
         // else recursively
         let p = &self.clipboard.clone();
         let p = Path::new(p);
         if p.is_file() {
-            copy(self.clipboard.clone(), &filename).expect("Could not copy the file / directory!");
+            match copy(self.clipboard.clone(), &filename) {
+                Ok(_) => {},
+                Err(_) => {
+                    self.status = "Could not copy the file / directory!".to_string();
+                    return;
+                }
+            }
         } else {
             self.copy_recursively(filename.clone());
         }
@@ -174,12 +203,18 @@ impl Action {
         if path.is_dir() {
             match remove_dir_all(path) {
                 Ok(_) => {}
-                Err(_) => self.status = format!("Failed to delete {}!", name),
+                Err(_) => {
+                    self.status = format!("Failed to delete {}!", name);
+                    return;
+                }
             }
         } else {
             match remove_file(path) {
                 Ok(_) => {}
-                Err(_) => self.status = format!("Failed to delete {}!", name),
+                Err(_) => {
+                    self.status = format!("Failed to delete {}!", name);
+                    return;
+                }
             }
         }
         // update the status
@@ -190,8 +225,10 @@ impl Action {
     // renames the element
     pub fn rename(&mut self, name: String, new: String) {
         
-        rename(name.clone(), new.clone()).expect(format!("Could not rename {} to {}!", name.clone(), new.clone()).as_str());
-        self.status = format!("Renamed {} to {}!", name, new);
+        self.status = match rename(name.clone(), new.clone()) {
+            Ok(_) => format!("Renamed {} to {}!", name.clone(), new.clone()),
+            Err(_) => format!("Could not rename {} to {}!", name.clone(), new.clone())
+        }
 
     }
     

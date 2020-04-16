@@ -2,7 +2,11 @@
 use serde_derive::Deserialize;
 
 // use to read the file
-use std::{ env::var, fs::File, io::prelude::Read
+use std::{
+    env::var,
+    fs::File, 
+    io::prelude::Read,
+    process::exit
 };
 
 
@@ -192,10 +196,22 @@ pub fn create_config(filename: String) -> Config {
             // if it exists, assign it
             let mut config_file = v;
             // read it
-            config_file.read_to_string(&mut content).expect("Could not read the config file!");
+            match config_file.read_to_string(&mut content) {
+                Ok(_) => {},
+                Err(_) => {
+                    println!("Could not read the config file at {}!", filename.clone());
+                    exit(1);
+                }
+            }
 
             // parse the variable to the Config struct
-            let mut config: Config = toml::from_str(&content).expect("Could not parse toml!");
+            let mut config: Config = match toml::from_str(&content) {
+                Ok(v) => v,
+                Err(_) => {
+                    println!("Could not parse toml!");
+                    exit(1);
+                }
+            };
 
             // replace all ~ with $HOME var
             config.favourites.paths = config.favourites.paths.iter()
