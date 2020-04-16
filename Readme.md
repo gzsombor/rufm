@@ -56,19 +56,27 @@ Use the help menu for more information and avaible flags.
 rufm --help
 ```
 
-To configure rufm you have to edit or create the configuration file located at "~/.config/rufm/config.ini". Alternatively you can use the "-c" flag to point to another configuratin file.
+To configure rufm you have to edit or create the configuration file located at "~/.config/rufm/config.ini". Alternatively you can use the "-c" flag to point to another configuratin file. You can find the default configuration file in the config folder.
 The default should look like this:
 
 ``` toml
-# rgb color codes
+# in rgb form
 # -> [red, green, blue]
-[colors]
-border_normal = [255, 255, 255]
-border_highlight = [158, 232, 255]
 
-# to use no colors, just comment them out 
-text_highlight.fg = [158, 232, 255]
-# text_highlight.bg = [0, 0, 0]
+# border colors
+[borders]
+search = [159, 222, 11]
+info = [67, 222, 134]
+filelist = [198, 40, 222]
+preview = [222, 20, 111]
+favourites = [222, 146, 60]
+
+# to use no colors, 
+# just comment them out -> optional colors
+[highlights]
+border = [132, 150, 232]
+text.fg = [132, 150, 232]
+# text.bg = [0, 0, 0]
 
 # favourites
 [favourites]
@@ -76,9 +84,7 @@ names = ["Root", "Home"]
 paths = ["/", "~"]
 
 # keybindings
-# these all have to be
-# single letters, because they
-# get converted to a char
+# to use the default keybindings, just comment them out
 [keys]
 rename = "R"
 copy = "C"
@@ -127,5 +133,6 @@ To read from the configuration file I used:
 ## Other stuff
 
 If you like it, let me know what you would like to have implemented next.
-I personally thought of a config setting, which allows you to remap keys.
+I personally thought of a config setting, which allows you to remap keys. Well you can already do that. Border colors are here as well.
+Next there is coming syntax highlighting in the preview.
 Have fun!
