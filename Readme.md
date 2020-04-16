@@ -89,15 +89,15 @@ sort = "\t"
 favourites = "F"
 ```
 
-Note that names and favourites have to be of the same length.
+Note that the arrays names and paths have to be of the same length.
 
 Keyboard shortcuts:
 
 Capital letters stand for actions, non-capital letters for navigation.
 
-- D => Deletes a file or directory,
-- C => Copies a file or directory,
-- P => Pastes a copied file or directory,
+- D => Deletes a file or directory (with confirmation prompt)
+- C => Copies a file or directory
+- P => Pastes a copied file or directory
 - R => Renames a file or directory
 
 - F => Switch to the favourites tab
