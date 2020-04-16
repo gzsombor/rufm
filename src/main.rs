@@ -44,7 +44,7 @@ use termion::event::{Key, Event};
 use termion::input::TermRead;
 
 use tui::Terminal;
-use tui::backend::{TermionBackend};
+use tui::backend::TermionBackend;
 
 
 // entry point
@@ -80,7 +80,7 @@ fn rufm() {
 
     // clear the terminal
     terminal.clear().expect("Could not clear the terminal!");
-    
+
     // Widgets
     let mut search = widgets::Search::new(
         config.borders.search
@@ -98,27 +98,43 @@ fn rufm() {
 
     // current selected element
     let mut selected = Selectable::FileList;
-
     // actions
     let mut action = Action::new();
 
     // update the filelist
-    filelist.update();
+    // filelist.update();
     // update the preview
-    preview.update(filelist.get_current());
+    // preview.update(filelist.get_current());
     // update the info
-    info.update(filelist.get_current());
+    // info.update(filelist.get_current());
 
     // draw the layout for the first time   
-    draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+    // draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
 
-    // for keyboard input
+    println!("Press any key to start the file manager ...");
+
+    // get the keyboard input
     let stdin = stdin();
-    // loop through keyboard inputs
-    // and evaluate them
-    for evt in stdin.events() {
+    let mut events = stdin.events();
 
-        let event = evt.unwrap(); 
+    // wait for the event to start the file manager
+    let event = events.next();
+
+    // loop through keyboard inputs
+    loop {
+
+        // update the filelist
+        filelist.update();
+        // update the preview
+        preview.update(filelist.get_current());
+        // update the info
+        info.update(filelist.get_current());
+
+        // draw the layout
+        draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+
+        // get the next event
+        let event = events.next().unwrap().unwrap(); 
         // match events
         // specific to selected item
         match selected {
@@ -392,15 +408,6 @@ fn rufm() {
 
         }
        
-        // update the filelist
-        filelist.update();
-        // update the preview
-        preview.update(filelist.get_current());
-        // update the info
-        info.update(filelist.get_current());
-
-        // draw the layout
-        draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
         
     }
     
