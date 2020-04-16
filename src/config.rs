@@ -12,7 +12,8 @@ use std::{ env::var, fs::File, io::prelude::Read
 pub struct Config {
 
     pub keys: Keys,
-    pub colors: Colors,
+    pub borders: Borders,
+    pub highlights: Highlights,
     pub favourites: Favourites
 
 }
@@ -26,12 +27,21 @@ pub struct Favourites {
 }
 
 #[derive(Deserialize)]
-pub struct Colors {
+pub struct Borders {
 
-    pub border_normal: [u8; 3],
-    pub border_highlight: [u8; 3],
+    pub search: [u8; 3],
+    pub info: [u8; 3],
+    pub filelist: [u8; 3],
+    pub preview: [u8; 3],
+    pub favourites: [u8; 3],
 
-    pub text_highlight: Color 
+}
+
+#[derive(Deserialize)]
+pub struct Highlights {
+
+    pub border: [u8; 3],
+    pub text: Color
 
 }
 
@@ -64,10 +74,17 @@ impl Config {
 
         Self {
 
-            colors: Colors {
-                border_normal: [255, 255, 255],
-                border_highlight: [158, 232, 255],
-                text_highlight: Color {
+            borders: Borders {
+                search: [255, 255, 255],
+                info: [255, 255, 255],
+                filelist: [255, 255, 255],
+                preview: [255, 255, 255],
+                favourites: [255, 255, 255],
+            },
+                
+            highlights: Highlights {
+                border: [158, 232, 255],
+                text: Color {
                     fg: Some([158, 232, 255]),
                     bg: None
                 }
@@ -191,9 +208,11 @@ pub fn create_config(filename: String) -> Config {
         },
 
         Err(_) => {
+
             // else use the default config
             println!("Could not read configuration file at '$HOME/.config/rufm/config.ini'! Using default configuration ...");
             Config::default()
+
         }
 
     }

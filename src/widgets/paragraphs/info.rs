@@ -8,6 +8,8 @@ use std::{
     fs::metadata
 };
 
+use tui::style::{ Style, Color };
+
 pub enum InfoMode {
     Status,
     Information,
@@ -18,17 +20,19 @@ pub enum InfoMode {
 pub struct Info {
 
     pub content: String,
-    pub mode: InfoMode // the current mode
+    pub mode: InfoMode, // the current mode
+    pub border_style: Style // border colors
 
 }
 
 impl Info {
 
     // create a new info widget
-    pub fn new() -> Self {
+    pub fn new(bs: [u8; 3]) -> Self {
         Self {
             content: String::new(),
-            mode: InfoMode::Information
+            mode: InfoMode::Information,
+            border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2]))
         }
     }
 

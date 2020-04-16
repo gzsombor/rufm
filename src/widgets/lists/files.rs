@@ -6,6 +6,8 @@ use std::{
     iter::Iterator
 };
 
+use tui::style::{ Style, Color };
+
 // import the needed trait
 use crate::widgets::traits::CustomList; 
 
@@ -17,7 +19,8 @@ pub struct FileList {
     pub current: usize, // current selected item
     pub content: Vec<String>, // all items
     pub key: String, // the search key
-    pub sort_style: i8 // the sorting style; 0 = nothing, 1 = search, 2 = abc; 3 = len
+    pub sort_style: i8, // the sorting style; 0 = nothing, 1 = search, 2 = abc; 3 = len
+    pub border_style: Style // border colors
 
 }
 
@@ -42,7 +45,7 @@ impl FileList {
 
     // creates a new file list with
     // the content of the current directory
-    pub fn new() -> Self {
+    pub fn new(bs: [u8; 3]) -> Self {
 
         // get all elements off the cwd
         let cwd_content = Self::get_dir();
@@ -53,7 +56,8 @@ impl FileList {
             current: 0,
             content: cwd_content,
             key: String::new(),
-            sort_style: 0
+            sort_style: 0,
+            border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2]))
 
         }
     

@@ -4,6 +4,8 @@ use std::{
     env::set_current_dir
 };
 
+use tui::style::{ Style, Color };
+
 // import the needed trait
 use crate::widgets::traits::CustomList; 
 
@@ -15,7 +17,7 @@ pub struct Favourites {
     pub current: usize, // current selected item
     pub names: Vec<String>, // all names
     pub paths: Vec<String>, // all paths (same index as names)
-    pub update: bool // if update is needed
+    pub border_style: Style // the border colors
 
 }
 
@@ -23,7 +25,7 @@ impl Favourites {
 
     // creates a new file list with
     // the content of the current directory
-    pub fn new(names: Vec<String>, paths: Vec<String>) -> Favourites {
+    pub fn new(bs: [u8; 3], names: Vec<String>, paths: Vec<String>) -> Favourites {
 
         // return the FileList struct
         Favourites {
@@ -31,7 +33,7 @@ impl Favourites {
             current: 0,
             names: names,
             paths: paths,
-            update: true
+            border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2]))
 
         }
     

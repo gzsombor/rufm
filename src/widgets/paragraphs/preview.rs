@@ -5,6 +5,8 @@ use std::{
     io::prelude::*
 };
 
+use tui::style::{ Style, Color };
+
 // import the needed trait
 use crate::widgets::traits::CustomParagraph; 
 
@@ -12,7 +14,8 @@ pub struct Preview {
 
     pub filename: String, // the name of the previewed file
     pub content: String, // the content of the previewed file
-    pub update: bool // if it should update
+    pub update: bool, // if it should update
+    pub border_style: Style // border colors
 
 }
 
@@ -41,11 +44,12 @@ impl Preview {
     }
 
     // create a new empty struct
-    pub fn new() -> Self {
+    pub fn new(bs: [u8; 3]) -> Self {
         Self {
             filename: String::new(),
             content: String::new(),
-            update: true
+            update: true,
+            border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2]))
         }
     }
 

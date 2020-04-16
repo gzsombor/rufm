@@ -9,17 +9,16 @@ use tui::widgets::{Paragraph, Block, Borders, SelectableList};
 
 use super::*;
 
-use crate::config::Colors;
+use crate::config::Highlights;
 
 // draws the layout
 // parameters are a little messed up
 pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
-    (selected: &Selectable, colors: &Colors, info: &Info, preview: &Preview,
+    (selected: &Selectable, highlights: &Highlights, info: &Info, preview: &Preview,
     favs: &Favourites, search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
 
-    let b_h = &colors.border_highlight;
-    let b_n = &colors.border_normal;
-    let t_h = &colors.text_highlight;
+    let b_h = &highlights.border;
+    let t_h = &highlights.text;
 
     // custom colors
     let mut custom_select_style = Style::default()
@@ -35,8 +34,8 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         None => {}
     }
 
-    let custom_border_style_normal = Style::default()
-        .fg(Color::Rgb(b_n[0], b_n[1], b_n[2]));
+    // let custom_border_style_normal = Style::default()
+    //    .fg(Color::Rgb(b_n[0], b_n[1], b_n[2]));
     let custom_border_style_selected = Style::default()
         .fg(Color::Rgb(b_h[0], b_h[1], b_h[2]));
 
@@ -95,7 +94,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // search paragraph
         let search_display = search.display();
         let mut search_pgraph = Paragraph::new(search_display.iter())
-            .block(custom_block.title(" Search ").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Search ").border_style(search.border_style))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -105,7 +104,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // info paragraph
         let info_display = info.display();
         let mut info_pgraph = Paragraph::new(info_display.iter())
-            .block(custom_block.title(" Info ").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Info ").border_style(info.border_style))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -117,7 +116,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         let file_list_title = format!(" -> {} ", cwd.display());
         let mut file_list = SelectableList::default()
             .items(&fl.content)
-            .block(custom_block.title(file_list_title.as_str()).border_style(custom_border_style_normal))
+            .block(custom_block.title(file_list_title.as_str()).border_style(fl.border_style))
             .highlight_style(custom_select_style)
             .highlight_symbol(">");
 
@@ -126,7 +125,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // preview paragraph
         let preview_display = preview.display();
         let mut preview_pgraph = Paragraph::new(preview_display.iter())
-            .block(custom_block.title(" Preview ").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Preview ").border_style(preview.border_style))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
             .wrap(true);
@@ -136,7 +135,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // favourites list normal
         let mut favourites_list = SelectableList::default()
             .items(&favs.names)
-            .block(custom_block.title(" Favourites ").border_style(custom_border_style_normal))
+            .block(custom_block.title(" Favourites ").border_style(favs.border_style))
             .highlight_style(custom_select_style)
             .highlight_symbol(">");
 

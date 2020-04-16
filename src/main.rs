@@ -82,13 +82,19 @@ fn rufm() {
     terminal.clear().expect("Could not clear the terminal!");
     
     // Widgets
-    let mut search = widgets::Search::new();
-    let mut filelist = widgets::FileList::new();
-    let mut preview = widgets::Preview::new();
-    let mut favourites = widgets::Favourites::new(
+    let mut search = widgets::Search::new(
+        config.borders.search
+    ); let mut filelist = widgets::FileList::new(
+        config.borders.filelist
+    ); let mut preview = widgets::Preview::new(
+        config.borders.preview
+    ); let mut favourites = widgets::Favourites::new(
+        config.borders.favourites,
         config.favourites.names.clone(),
         config.favourites.paths.clone()
-    ); let mut info = widgets::Info::new();
+    ); let mut info = widgets::Info::new(
+        config.borders.info
+    );
 
     // current selected element
     let mut selected = Selectable::FileList;
@@ -104,7 +110,7 @@ fn rufm() {
     info.update(filelist.get_current());
 
     // draw the layout for the first time   
-    draw(&selected, &config.colors, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+    draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -394,7 +400,7 @@ fn rufm() {
         info.update(filelist.get_current());
 
         // draw the layout
-        draw(&selected, &config.colors, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+        draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
         
     }
     
