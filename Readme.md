@@ -46,6 +46,8 @@ sudo cp rufm /usr/bin/rufm
 # 
 ## Usage & Configuration
 
+NOTE: If you use an older version, you probably have to update your configuration file.
+
 This project is in it's early states. Currently there aren't many features avaible.
 I hope this is going to change in the near future.
 
