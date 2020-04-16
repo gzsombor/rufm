@@ -55,8 +55,9 @@ pub struct Borders {
 #[derive(Deserialize)]
 pub struct Highlights {
 
-    pub border: [u8; 3],
-    pub text: Color
+    pub border: Option<[u8; 3]>,
+    pub text: Color,
+    pub symbol: Option<String>
 
 }
 
@@ -92,11 +93,12 @@ impl Config {
             },
                 
             highlights: Highlights {
-                border: [158, 232, 255],
+                border: Some([158, 232, 255]),
                 text: Color {
                     fg: Some([158, 232, 255]),
                     bg: None
-                }
+                },
+                symbol: Some(String::from(">"))
             },
 
             favourites: Favourites {
@@ -215,6 +217,11 @@ pub fn create_config(filename: String) -> Config {
                 .map(|x| x.replace("~", home.as_str().clone())).collect();
             // replace all None values in the Keys struct with the default ones
             config.keys = change_default_keys(config.keys);
+            // replace the highlights.symbol with "" if None
+            config.highlights.symbol = match config.highlights.symbol {
+                Some(v) => Some(v),
+                None => Some(String::new())
+            };
             
             config
 
