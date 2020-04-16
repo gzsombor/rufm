@@ -14,9 +14,24 @@ pub struct Config {
     pub keys: Keys,
     pub borders: Borders,
     pub highlights: Highlights,
-    pub favourites: Favourites
+    pub favourites: Favourites,
+    pub other: Other
 
 }
+
+#[derive(Deserialize)]
+pub struct Keys {
+    
+    pub rename: Option<String>,
+    pub copy: Option<String>,
+    pub paste: Option<String>,
+    pub delete: Option<String>,
+    pub search: Option<String>,
+    pub sort: Option<String>,
+    pub favourites: Option<String>
+
+}
+
 
 #[derive(Deserialize)]
 pub struct Favourites {
@@ -46,23 +61,17 @@ pub struct Highlights {
 }
 
 #[derive(Deserialize)]
-pub struct Color {
+pub struct Other {
 
-    pub fg: Option<[u8; 3]>,
-    pub bg: Option<[u8; 3]>,
+    pub startup_info: Option<bool>
 
 }
 
 #[derive(Deserialize)]
-pub struct Keys {
-    
-    pub rename: Option<String>,
-    pub copy: Option<String>,
-    pub paste: Option<String>,
-    pub delete: Option<String>,
-    pub search: Option<String>,
-    pub sort: Option<String>,
-    pub favourites: Option<String>
+pub struct Color {
+
+    pub fg: Option<[u8; 3]>,
+    pub bg: Option<[u8; 3]>,
 
 }
 
@@ -103,6 +112,10 @@ impl Config {
                 search: Some(String::from("/")),
                 sort: Some(String::from("\t")),
                 favourites: Some(String::from("F"))
+            },
+
+            other: Other {
+                startup_info: Some(true)
             }
 
         }

@@ -61,7 +61,7 @@ fn rufm() {
     let mut options = Options::new();
     options.eval();
     // create configuration
-    let config = create_config(options.config);
+    let config = create_config(options.config.clone());
     // keybindings
     let key_rename = config.keys.rename.unwrap().chars().nth(0).expect("Keybinding (rename) not a single letter!");
     let key_copy = config.keys.copy.unwrap().chars().nth(0).expect("Keybinding (copy) not a single letter!");
@@ -70,17 +70,7 @@ fn rufm() {
     let key_search = config.keys.search.unwrap().chars().nth(0).expect("Keybinding (search) not a single letter!");
     let key_sort = config.keys.sort.unwrap().chars().nth(0).expect("Keybinding (sort) not a single letter!");
     let key_favourites = config.keys.favourites.unwrap().chars().nth(0).expect("Keybinding (favourites) not a single letter!");
-
-    // creating the terminal
-    let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend).expect("Could not draw to the terminal!");
-    // hide the cursor
-    terminal.hide_cursor().expect("Could not draw to the terminal!");
-
-    // clear the terminal
-    terminal.clear().expect("Could not clear the terminal!");
-
+ 
     // Widgets
     let mut search = widgets::Search::new(
         config.borders.search
@@ -94,31 +84,39 @@ fn rufm() {
         config.favourites.paths.clone()
     ); let mut info = widgets::Info::new(
         config.borders.info
-    );
-
-    // current selected element
+    ); // current selected element
     let mut selected = Selectable::FileList;
     // actions
     let mut action = Action::new();
 
-    // update the filelist
-    // filelist.update();
-    // update the preview
-    // preview.update(filelist.get_current());
-    // update the info
-    // info.update(filelist.get_current());
-
-    // draw the layout for the first time   
-    // draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
-
-    println!("Press any key to start the file manager ...");
+    // creating the terminal
+    let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
+    let backend = TermionBackend::new(stdout);
+    let mut terminal = Terminal::new(backend).expect("Could not draw to the terminal!");
+    // hide the cursor
+    terminal.hide_cursor().expect("Could not draw to the terminal!");
 
     // get the keyboard input
-    let stdin = stdin();
-    let mut events = stdin.events();
+    let mut events = stdin().events();
 
-    // wait for the event to start the file manager
-    let event = events.next();
+    match config.other.startup_info {
+        // startup information
+        Some(v) if v == true => {
+            println!("\nConfiguration: {}", options.config.clone());
+            // move the cursor to the next line
+            let cursor_pos = terminal.get_cursor().unwrap().1;
+            terminal.set_cursor(0, cursor_pos).expect("Could not move cursor. Please disable the startup_info!");
+            println!("Press any key to start ...");
+            
+            // wait for the event to start the file manager
+            let _ = events.next();
+        },
+        _ => {}
+
+    }
+
+    // clear the terminal
+    terminal.clear().expect("Could not clear the terminal!");
 
     // loop through keyboard inputs
     loop {
