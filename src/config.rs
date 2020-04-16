@@ -2,10 +2,7 @@
 use serde_derive::Deserialize;
 
 // use to read the file
-use std::{
-    env::var,
-    fs::File,
-    io::prelude::Read
+use std::{ env::var, fs::File, io::prelude::Read
 };
 
 
@@ -49,13 +46,13 @@ pub struct Color {
 #[derive(Deserialize)]
 pub struct Keys {
     
-    pub rename: String,
-    pub copy: String,
-    pub paste: String,
-    pub delete: String,
-    pub search: String,
-    pub sort: String,
-    pub favourites: String
+    pub rename: Option<String>,
+    pub copy: Option<String>,
+    pub paste: Option<String>,
+    pub delete: Option<String>,
+    pub search: Option<String>,
+    pub sort: Option<String>,
+    pub favourites: Option<String>
 
 }
 
@@ -82,13 +79,13 @@ impl Config {
             },
 
             keys: Keys {
-                rename: String::from("R"),
-                copy: String::from("C"),
-                paste: String::from("P"),
-                delete: String::from("D"),
-                search: String::from("/"),
-                sort: String::from("\t"),
-                favourites: String::from("F")
+                rename: Some(String::from("R")),
+                copy: Some(String::from("C")),
+                paste: Some(String::from("P")),
+                delete: Some(String::from("D")),
+                search: Some(String::from("/")),
+                sort: Some(String::from("\t")),
+                favourites: Some(String::from("F"))
             }
 
         }
@@ -97,6 +94,71 @@ impl Config {
 
 }
 
+fn change_default_keys(mut keys: Keys) -> Keys {
+
+    // default key - value pairs
+    let default_keys = [
+      ("rename", "R"),
+      ("copy", "C"),
+      ("paste", "P"),
+      ("delete", "D"),
+      ("search", "/"),
+      ("sort", "\t"),
+      ("favourites", "F")
+    ];
+  
+    // match all values and replace
+    // the keys if they're None values
+    // they're probably is a better way, let me know
+    for k in &default_keys {
+
+        match k.0 {
+
+            "rename" => match keys.rename {
+                Some(_) => {},
+                None => keys.rename = Some(k.1.to_string())
+            },
+
+            "copy" => match keys.copy {
+                Some(_) => {},
+                None => keys.copy = Some(k.1.to_string())
+            },
+
+            "paste" => match keys.paste {
+                Some(_) => {},
+                None => keys.paste = Some(k.1.to_string())
+            },                   
+
+            "delete" => match keys.delete {
+                Some(_) => {},
+                None => keys.delete = Some(k.1.to_string())
+            },                   
+
+            "search" => match keys.search {
+                Some(_) => {},
+                None => keys.search = Some(k.1.to_string())
+            },                   
+
+            "sort" => match keys.sort {
+                Some(_) => {},
+                None => keys.sort = Some(k.1.to_string())
+            },                   
+
+            "favourites" => match keys.favourites {
+                Some(_) => {},
+                None => keys.favourites = Some(k.1.to_string())
+            },                   
+
+            _ => {}
+
+        }
+
+    }
+
+    // return the new keybindings
+    keys
+
+}
 
 pub fn create_config(filename: String) -> Config {
     
@@ -117,9 +179,12 @@ pub fn create_config(filename: String) -> Config {
 
             // parse the variable to the Config struct
             let mut config: Config = toml::from_str(&content).expect("Could not parse toml!");
+
             // replace all ~ with $HOME var
             config.favourites.paths = config.favourites.paths.iter()
                 .map(|x| x.replace("~", home.as_str().clone())).collect();
+            // replace all None values in the Keys struct with the default ones
+            config.keys = change_default_keys(config.keys);
             
             config
 

@@ -63,13 +63,13 @@ fn rufm() {
     // create configuration
     let config = create_config(options.config);
     // keybindings
-    let key_rename = config.keys.rename.chars().nth(0).expect("Keybinding (rename) not a single letter!");
-    let key_copy = config.keys.copy.chars().nth(0).expect("Keybinding (copy) not a single letter!");
-    let key_paste = config.keys.paste.chars().nth(0).expect("Keybinding (paste) not a single letter!");
-    let key_delete = config.keys.delete.chars().nth(0).expect("Keybinding (delete) not a single letter!");
-    let key_search = config.keys.search.chars().nth(0).expect("Keybinding (search) not a single letter!");
-    let key_sort = config.keys.sort.chars().nth(0).expect("Keybinding (sort) not a single letter!");
-    let key_favourites = config.keys.favourites.chars().nth(0).expect("Keybinding (favourites) not a single letter!");
+    let key_rename = config.keys.rename.unwrap().chars().nth(0).expect("Keybinding (rename) not a single letter!");
+    let key_copy = config.keys.copy.unwrap().chars().nth(0).expect("Keybinding (copy) not a single letter!");
+    let key_paste = config.keys.paste.unwrap().chars().nth(0).expect("Keybinding (paste) not a single letter!");
+    let key_delete = config.keys.delete.unwrap().chars().nth(0).expect("Keybinding (delete) not a single letter!");
+    let key_search = config.keys.search.unwrap().chars().nth(0).expect("Keybinding (search) not a single letter!");
+    let key_sort = config.keys.sort.unwrap().chars().nth(0).expect("Keybinding (sort) not a single letter!");
+    let key_favourites = config.keys.favourites.unwrap().chars().nth(0).expect("Keybinding (favourites) not a single letter!");
 
     // creating the terminal
     let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
@@ -104,7 +104,7 @@ fn rufm() {
     info.update(filelist.get_current());
 
     // draw the layout for the first time   
-    draw(&selected, &config, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+    draw(&selected, &config.colors, &info, &preview, &favourites, &search, &filelist, &mut terminal);
 
     // for keyboard input
     let stdin = stdin();
@@ -394,7 +394,7 @@ fn rufm() {
         info.update(filelist.get_current());
 
         // draw the layout
-        draw(&selected, &config, &info, &preview, &favourites, &search, &filelist, &mut terminal);
+        draw(&selected, &config.colors, &info, &preview, &favourites, &search, &filelist, &mut terminal);
         
     }
     
