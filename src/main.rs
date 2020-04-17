@@ -131,9 +131,9 @@ fn rufm() {
         // update the filelist
         filelist.update();
         // update the preview
-        preview.update(filelist.get_current());
+        preview.update(filelist.get_current_selected());
         // update the info
-        info.update(filelist.get_current());
+        info.update(filelist.get_current_selected());
 
         // draw the layout
         draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
@@ -157,11 +157,13 @@ fn rufm() {
                             
                                 InputConfirmAction::Rename => {
 
-                                    action.rename(filelist.get_current(), info.content.clone());
+                                    action.rename(filelist.get_current_selected(), info.content.clone());
                                     // update info
                                     info.content = action.status.clone();
                                     info.mode = InfoMode::Status;
                                     selected = Selectable::FileList;
+                                    // clear the selected elements
+                                    filelist.selected = Vec::new();
                                     // deselect action
                                     action.current = InputConfirmAction::Nothing;
 
@@ -209,13 +211,14 @@ fn rufm() {
                                 InputConfirmAction::Delete => {
 
                                     // delete the file
-                                    action.delete(filelist.get_current());
+                                    action.delete(filelist.selected.clone(), filelist.get_current_selected());
                                     // update info
                                     info.content = action.status.clone();
                                     info.mode = InfoMode::Status;
                                     selected = Selectable::FileList;
                                     // scroll to the top of the filelist
                                     filelist.scroll_top();
+                                    filelist.selected = Vec::new();
                                     // deselect action
                                     action.current = InputConfirmAction::Nothing;
 
@@ -340,8 +343,9 @@ fn rufm() {
 
                 // copy the file / directory
                 Event::Key(Key::Char(c)) if c == key_copy => {
-                    action.copy(filelist.get_current());
+                    action.copy(filelist.selected.clone(), filelist.get_current_selected());
                     filelist.scroll_top();
+                    filelist.selected = Vec::new();
                     // update info
                     info.content = action.status.clone();
                     info.mode = InfoMode::Status;
@@ -371,6 +375,12 @@ fn rufm() {
                 Event::Key(Key::Char(c)) if c == key_sort => {
                     // update the sorting style
                     filelist.toggle_sort_style();
+                },
+
+                // toggle selecting
+                Event::Key(Key::Char(' ')) => {
+                    // toggle the selecting
+                    filelist.toggle_select();
                 },
 
 	            _ => {}

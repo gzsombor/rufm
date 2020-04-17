@@ -1,7 +1,9 @@
 // use fs to access
 // the filesystem and read from a directory
 use std::{
+    path::Path,
     fs::read_dir,
+    env::current_dir,
     env::set_current_dir,
     iter::Iterator
 };
@@ -15,7 +17,8 @@ use crate::widgets::traits::CustomList;
 // Gets used by draw_layout
 // to draw the list widget which displays files
 pub struct FileList {
-    
+
+    pub selected: Vec<String>, // multiple selected items
     pub current: usize, // current selected item
     pub content: Vec<String>, // all items
     pub key: String, // the search key
@@ -43,6 +46,12 @@ impl FileList {
 
     }
 
+    // gets the cwd
+    pub fn get_cwd() -> String {
+        let cwd = current_dir().expect("Could not get cwd!");
+        cwd.to_str().expect("Could not convert to str!").to_string()
+    }
+
     // creates a new file list with
     // the content of the current directory
     pub fn new(bs: [u8; 3]) -> Self {
@@ -52,7 +61,8 @@ impl FileList {
 
         // return the FileList struct
         Self {
-
+    
+            selected: Vec::new(),
             current: 0,
             content: cwd_content,
             key: String::new(),
@@ -64,7 +74,7 @@ impl FileList {
     }
 
     // gets the current selected element
-    pub fn get_current(&self) -> String {
+    pub fn get_current_selected(&self) -> String {
         self.content[self.current].clone()
     }
 
@@ -81,6 +91,8 @@ impl FileList {
     pub fn change_dir_back(&mut self) {
         // get all elements off the cwd
         set_current_dir("..").expect("Not possible to change back!");
+        // clear the selected list
+        self.selected = Vec::new();
     }
 
     // change directory to current selected element
@@ -91,6 +103,53 @@ impl FileList {
             Ok(_) => {},
             Err(_) => {}
         }
+        // clear the selected list
+        self.selected = Vec::new();
+    }
+
+    // adds the selected element to the list or removes it
+    pub fn toggle_select(&mut self) {
+
+        let path = format!("{}/{}", FileList::get_cwd(), self.get_current_selected());
+        // check if the element is already in the list
+        match self.selected.clone()
+            .iter().enumerate().find(|x| x.1 == &path) {
+            // if found, remove it 
+            Some(v) => { self.selected.remove(v.0); },
+            // else add
+            None => self.selected.push(path)
+        }
+
+    }
+
+    // return the list of files with the selected files colored
+    pub fn display(&self) -> Vec<String> {
+
+        let mut selected_content = Vec::new();
+        // loop through all files and add to the ones
+        // in the selected list
+        for s in self.content.clone() {
+            match self.selected.clone()
+                .iter().find(|&x| {
+                    let name = Path::new(&x)
+                        .file_name().unwrap().to_str().unwrap();
+                    name == s.as_str()
+                }) {
+                // if found, add (selected) to it
+                Some(_) => {
+                    // create the new text
+                    let selected_text = format!("{} (selected)", s);
+                    // add element to vec
+                    selected_content.push(selected_text);   
+                } // dont add something
+                None => {
+                    selected_content.push(s);
+                }
+            }
+        }
+
+        selected_content 
+
     }
 
     // no sorting

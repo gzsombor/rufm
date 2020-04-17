@@ -15,7 +15,7 @@ use crate::config::Highlights;
 // parameters are a little messed up
 pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
     (selected: &Selectable, highlights: &Highlights, info: &Info, preview: &Preview,
-    favs: &Favourites, search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
+    favs: &Favourites, search: &Search, filelist: &FileList, terminal: &mut Terminal<B>) {
 
     // highlighting color and symbol
     let custom_highlight_symbol = highlights.symbol.clone().unwrap();
@@ -116,9 +116,10 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         // create the lists
         let cwd = current_dir().expect("Could not get the cwd!");
         let file_list_title = format!(" -> {} ", cwd.display());
+        let file_list_items = &filelist.display();
         let mut file_list = SelectableList::default()
-            .items(&fl.content)
-            .block(custom_block.title(file_list_title.as_str()).border_style(fl.border_style))
+            .items(file_list_items)
+            .block(custom_block.title(file_list_title.as_str()).border_style(filelist.border_style))
             .highlight_style(custom_select_style)
             .highlight_symbol(custom_highlight_symbol.as_str());
 
@@ -135,6 +136,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
 
         // favourites list normal
+        // style the selected items
         let mut favourites_list = SelectableList::default()
             .items(&favs.names)
             .block(custom_block.title(" Favourites ").border_style(favs.border_style))
@@ -160,7 +162,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
                 // add colored border and select the current item
                 file_list = file_list 
                     .block(custom_block.title(file_list_title.as_str()).border_style(custom_border_style_selected))
-                    .select(Some(fl.current));
+                    .select(Some(filelist.current));
             },
 
             Selectable::Favourites => {
