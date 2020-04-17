@@ -73,6 +73,7 @@ fn rufm() {
     let key_search = config.keys.search.unwrap().chars().nth(0).expect("Keybinding (search) not a single letter!");
     let key_sort = config.keys.sort.unwrap().chars().nth(0).expect("Keybinding (sort) not a single letter!");
     let key_favourites = config.keys.favourites.unwrap().chars().nth(0).expect("Keybinding (favourites) not a single letter!");
+    let key_select = config.keys.select.unwrap().chars().nth(0).expect("Keybinding (select) not a single letter!");
  
     // Widgets
     let mut search = widgets::Search::new(
@@ -378,7 +379,7 @@ fn rufm() {
                 },
 
                 // toggle selecting
-                Event::Key(Key::Char(' ')) => {
+                Event::Key(Key::Char(c)) if c == key_select => {
                     // toggle the selecting
                     filelist.toggle_select();
                 },

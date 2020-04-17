@@ -32,7 +32,8 @@ pub struct Keys {
     pub delete: Option<String>,
     pub search: Option<String>,
     pub sort: Option<String>,
-    pub favourites: Option<String>
+    pub favourites: Option<String>,
+    pub select: Option<String>
 
 }
 
@@ -117,7 +118,8 @@ impl Config {
                 delete: Some(String::from("D")),
                 search: Some(String::from("/")),
                 sort: Some(String::from("\t")),
-                favourites: Some(String::from("F"))
+                favourites: Some(String::from("F")),
+                select: Some(String::from(" "))
             },
 
             other: Other {
@@ -134,13 +136,14 @@ fn change_default_keys(mut keys: Keys) -> Keys {
 
     // default key - value pairs
     let default_keys = [
-      ("rename", "R"),
-      ("copy", "C"),
-      ("paste", "P"),
-      ("delete", "D"),
-      ("search", "/"),
-      ("sort", "\t"),
-      ("favourites", "F")
+        ("rename", "R"),
+        ("copy", "C"),
+        ("paste", "P"),
+        ("delete", "D"),
+        ("search", "/"),
+        ("sort", "\t"),
+        ("favourites", "F"),
+        ("select", " ") 
     ];
   
     // match all values and replace
@@ -184,6 +187,11 @@ fn change_default_keys(mut keys: Keys) -> Keys {
                 Some(_) => {},
                 None => keys.favourites = Some(k.1.to_string())
             },                   
+
+            "select" => match keys.select {
+                Some(_) => {},
+                None => keys.select = Some(k.1.to_string())
+            },
 
             _ => {}
 
@@ -246,7 +254,6 @@ pub fn create_config(filename: String) -> Config {
         Err(_) => {
 
             // else use the default config
-            println!("Could not read configuration file at '$HOME/.config/rufm/config.ini'! Using default configuration ...");
             Config::default()
 
         }
