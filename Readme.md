@@ -96,6 +96,7 @@ delete = "D"
 search = "/"
 sort = "\t"
 favourites = "F"
+select = " "
 
 # other stuff
 [other]
@@ -117,6 +118,7 @@ Capital letters stand for actions, non-capital letters for navigation.
 - / => Switch to search
 
 - Tab => Change the sorting style (normal and length)
+- Space => Select an element (to delete / copy multiple files)
 
 All of the top keybindings can be changed in the configuration file.
 
@@ -140,6 +142,5 @@ To read from the configuration file I used:
 ## Other stuff
 
 If you like it, let me know what you would like to have implemented next.
-I personally thought of a config setting, which allows you to remap keys. Well you can already do that. Border colors are here as well.
 Next there is coming syntax highlighting in the preview.
 Have fun!
