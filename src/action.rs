@@ -87,7 +87,7 @@ impl Action {
         // the target directory to copy
         let n = name.split("/").collect::<Vec<&str>>();
         let n = &n[1..n.len()];
-        let target = format!("{}/{}", target.clone(), n.join("/"));
+        let target = format!("{}/{}", target, n.join("/"));
         // get all the elements of
         // the target directory
         let content = Action::get_dir(target.clone());
@@ -108,7 +108,7 @@ impl Action {
         for c in content {
             // get the name
             let c_name = &c
-                .split("/")
+                .split('/')
                 .collect::<Vec<&str>>()
                 .pop()
                 .unwrap()
@@ -127,7 +127,7 @@ impl Action {
                 match copy(from.clone(), to.clone()) {
                     Ok(_) => {},
                     Err(_) => {
-                        self.status = format!("Could not copy {}!", from.clone());
+                        self.status = format!("Could not copy {}!", from);
                         return;
                     }
                 }
@@ -140,12 +140,12 @@ impl Action {
     // and copies the file / directory with the
     // same name to .rufm
     pub fn copy(&mut self, selected: Vec<String>, name: String) {
-        self.clipboard = selected.clone();
+        self.clipboard = selected;
         // add the current selected element
         // if it isn't already in the list
-        self.clipboard = Action::add_if_not_found(self.clipboard.clone(), name.clone());
+        self.clipboard = Action::add_if_not_found(self.clipboard.clone(), name);
         // update the status
-        self.status = format!("Copied selected items!");
+        self.status = "Copied selected items!".to_string();
     }
 
     // pastes the clipboard to current location
@@ -168,7 +168,7 @@ impl Action {
                 // get the filename
                 let filename = self.check(
                     c
-                        .split("/")
+                        .split('/')
                         .collect::<Vec<&str>>()
                         .clone()
                         .pop()
@@ -193,7 +193,7 @@ impl Action {
         }
 
         // update the status
-        self.status = format!("Pasted clipboard!");
+        self.status = "Pasted clipboard!".to_string();
 
     }
 
@@ -206,6 +206,7 @@ impl Action {
         let cwd_content = Action::get_dir("./".to_string());
         for c in cwd_content {
             if c == name {
+                // rerun the function with " _copy
                 return self.check(name.clone() + "_copy");
             }
         }
@@ -218,10 +219,10 @@ impl Action {
     // deletes the specified directory
     pub fn delete(&mut self, selected: Vec<String>, name: String) {
 
-        let mut elements = selected.clone();
+        let mut elements = selected;
         // add the current selected element
         // if it isn't already in the list
-        elements = Action::add_if_not_found(elements.clone(), name.clone());
+        elements = Action::add_if_not_found(elements.clone(), name);
 
         for c in elements {
             // create path to access information
@@ -246,7 +247,7 @@ impl Action {
             }
         }
         // update the status
-        self.status = format!("Deleted selected elements!");
+        self.status = "Deleted selected elements!".to_string();
 
     }
 
@@ -254,8 +255,8 @@ impl Action {
     pub fn rename(&mut self, name: String, new: String) {
         
         self.status = match rename(name.clone(), new.clone()) {
-            Ok(_) => format!("Renamed {} to {}!", name.clone(), new.clone()),
-            Err(_) => format!("Could not rename {} to {}!", name.clone(), new.clone())
+            Ok(_) => format!("Renamed {} to {}!", name, new),
+            Err(_) => format!("Could not rename {} to {}!", name, new)
         }
 
     }

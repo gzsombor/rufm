@@ -99,10 +99,7 @@ impl FileList {
     pub fn change_dir_selected(&mut self) {
         // current selected element
         let path = &self.content[self.current];
-        match set_current_dir(path.as_str()) {
-            Ok(_) => {},
-            Err(_) => {}
-        }
+        set_current_dir(path.as_str()).expect("Could not change the directory!");
         // clear the selected list
         self.selected = Vec::new();
     }
@@ -166,7 +163,7 @@ impl FileList {
     // sort the files after the input string
     fn sort_search(&mut self) {
 
-        if self.key.len() == 0 { 
+        if self.key.is_empty() { 
             self.sort_default();
             return;
         }
@@ -202,11 +199,9 @@ impl FileList {
             let mut pos = 0;
             for (i, s) in self.content.iter().enumerate() {
                 let ls = s.len();
-                if lf < ls {
-                    if !insert { 
-                        pos = i; 
-                        insert = true; 
-                    }
+                if lf < ls && !insert {
+                    pos = i; 
+                    insert = true; 
                 }
             }
             if insert {
@@ -220,11 +215,6 @@ impl FileList {
         if self.content.is_empty() {
              self.content = vec!["Nothing found!".to_string()];
         }
-    }
-
-    // sorts the filelist after abc
-    fn sort_abc(&mut self) {
-        return;
     }
 
     // switches between the 3 avaible sorting styles

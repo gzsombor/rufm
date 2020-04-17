@@ -25,14 +25,14 @@ impl Favourites {
 
     // creates a new file list with
     // the content of the current directory
-    pub fn new(bs: [u8; 3], names: Vec<String>, paths: Vec<String>) -> Favourites {
+    pub fn new(bs: [u8; 3], input_names: Vec<String>, input_paths: Vec<String>) -> Favourites {
 
         // return the FileList struct
         Favourites {
 
             current: 0,
-            names: names,
-            paths: paths,
+            names: input_names,
+            paths: input_paths,
             border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2]))
 
         }

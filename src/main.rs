@@ -105,8 +105,8 @@ fn rufm() {
 
     match config.other.startup_info {
         // startup information
-        Some(v) if v == true => {
-            println!("\nConfiguration: {}", options.config.clone());
+        Some(v) if v => {
+            println!("\nConfiguration: {}", options.config);
             // move the cursor to the next line
             let cursor_pos = terminal.get_cursor().unwrap().1;
             terminal.set_cursor(0, cursor_pos).expect("Could not move cursor. Please disable the startup_info!");
@@ -120,7 +120,6 @@ fn rufm() {
             let _ = events.next();
         },
         _ => {}
-
     }
 
     // clear the terminal

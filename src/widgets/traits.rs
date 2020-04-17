@@ -4,8 +4,7 @@
  * all Lists/Paragraphs.
  */
 
-extern crate alloc;
-use alloc::borrow::Cow;
+use std::borrow::Cow;
 
 use tui::widgets::Text;
 

@@ -210,7 +210,7 @@ pub fn create_config(filename: String) -> Config {
     let mut content = String::new();
     // get the home directory
     let home = var("HOME").expect("Could not get $HOME!");
-    let filename = filename.replace("~", home.as_str().clone());
+    let filename = filename.replace("~", home.as_str());
 
     match File::open(&filename) {
 
@@ -222,7 +222,7 @@ pub fn create_config(filename: String) -> Config {
             match config_file.read_to_string(&mut content) {
                 Ok(_) => {},
                 Err(_) => {
-                    println!("Could not read the config file at {}!", filename.clone());
+                    println!("Could not read the config file at {}!", filename);
                     exit(1);
                 }
             }
@@ -238,7 +238,7 @@ pub fn create_config(filename: String) -> Config {
 
             // replace all ~ with $HOME var
             config.favourites.paths = config.favourites.paths.iter()
-                .map(|x| x.replace("~", home.as_str().clone())).collect();
+                .map(|x| x.replace("~", home.as_str())).collect();
             // replace all None values in the Keys struct with the default ones
             config.keys = change_default_keys(config.keys);
             // replace the highlights.symbol with "" if None
