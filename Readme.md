@@ -79,6 +79,7 @@ favourites = [222, 146, 60]
 border = [132, 150, 232]
 text.fg = [132, 150, 232]
 # text.bg = [0, 0, 0]
+symbol = ">"
 
 # favourites
 [favourites]
@@ -95,6 +96,10 @@ delete = "D"
 search = "/"
 sort = "\t"
 favourites = "F"
+
+# other stuff
+[other]
+# startup_info = true
 ```
 
 Note that the arrays names and paths have to be of the same length.

@@ -17,3 +17,6 @@ termion = "*"
 toml = "*"
 serde = "*"
 serde_derive = "*"
+
+# for syntax highlighting
+syntect = "*"

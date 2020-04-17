@@ -17,27 +17,29 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
     (selected: &Selectable, highlights: &Highlights, info: &Info, preview: &Preview,
     favs: &Favourites, search: &Search, fl: &FileList, terminal: &mut Terminal<B>) {
 
-    let b_h = &highlights.border;
-    let t_h = &highlights.text;
-
-    // custom colors
+    // highlighting color and symbol
+    let custom_highlight_symbol = highlights.symbol.clone().unwrap();
     let mut custom_select_style = Style::default()
         .modifier(Modifier::BOLD);
 
-    match t_h.fg {
-        Some(v) => { custom_select_style = custom_select_style.fg(Color::Rgb(v[0], v[1], v[2])); },
-        None => {}
-    }
+    // add .fg colors
+    custom_select_style = match &highlights.text.fg {
+        Some(v) => custom_select_style.fg(Color::Rgb(v[0], v[1], v[2])),
+        None => custom_select_style
+    };
+    
+    // add .bg colors
+    let custom_select_style = match &highlights.text.bg {
+        Some(v) => custom_select_style.bg(Color::Rgb(v[0], v[1], v[2])),
+        None => custom_select_style
+    };
 
-    match t_h.bg {
-        Some(v) => { custom_select_style = custom_select_style.bg(Color::Rgb(v[0], v[1], v[2])); },
-        None => {}
-    }
-
-    // let custom_border_style_normal = Style::default()
-    //    .fg(Color::Rgb(b_n[0], b_n[1], b_n[2]));
-    let custom_border_style_selected = Style::default()
-        .fg(Color::Rgb(b_h[0], b_h[1], b_h[2]));
+    // the border highlighting style
+    let b = &highlights.border;
+    let custom_border_style_selected = match b {
+        Some(v) =>  Style::default().fg(Color::Rgb(v[0], v[1], v[2])),
+        None => Style::default().fg(Color::Rgb(255, 255, 255))
+    };
 
     // custom block
     let custom_block = Block::default().borders(Borders::ALL);
@@ -118,7 +120,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
             .items(&fl.content)
             .block(custom_block.title(file_list_title.as_str()).border_style(fl.border_style))
             .highlight_style(custom_select_style)
-            .highlight_symbol(">");
+            .highlight_symbol(custom_highlight_symbol.as_str());
 
 
 
@@ -137,7 +139,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
             .items(&favs.names)
             .block(custom_block.title(" Favourites ").border_style(favs.border_style))
             .highlight_style(custom_select_style)
-            .highlight_symbol(">");
+            .highlight_symbol(custom_highlight_symbol.as_str());
 
 
 

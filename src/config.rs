@@ -18,9 +18,24 @@ pub struct Config {
     pub keys: Keys,
     pub borders: Borders,
     pub highlights: Highlights,
-    pub favourites: Favourites
+    pub favourites: Favourites,
+    pub other: Other
 
 }
+
+#[derive(Deserialize)]
+pub struct Keys {
+    
+    pub rename: Option<String>,
+    pub copy: Option<String>,
+    pub paste: Option<String>,
+    pub delete: Option<String>,
+    pub search: Option<String>,
+    pub sort: Option<String>,
+    pub favourites: Option<String>
+
+}
+
 
 #[derive(Deserialize)]
 pub struct Favourites {
@@ -44,8 +59,16 @@ pub struct Borders {
 #[derive(Deserialize)]
 pub struct Highlights {
 
-    pub border: [u8; 3],
-    pub text: Color
+    pub border: Option<[u8; 3]>,
+    pub text: Color,
+    pub symbol: Option<String>
+
+}
+
+#[derive(Deserialize)]
+pub struct Other {
+
+    pub startup_info: Option<bool>
 
 }
 
@@ -54,19 +77,6 @@ pub struct Color {
 
     pub fg: Option<[u8; 3]>,
     pub bg: Option<[u8; 3]>,
-
-}
-
-#[derive(Deserialize)]
-pub struct Keys {
-    
-    pub rename: Option<String>,
-    pub copy: Option<String>,
-    pub paste: Option<String>,
-    pub delete: Option<String>,
-    pub search: Option<String>,
-    pub sort: Option<String>,
-    pub favourites: Option<String>
 
 }
 
@@ -87,11 +97,12 @@ impl Config {
             },
                 
             highlights: Highlights {
-                border: [158, 232, 255],
+                border: Some([158, 232, 255]),
                 text: Color {
                     fg: Some([158, 232, 255]),
                     bg: None
-                }
+                },
+                symbol: Some(String::from(">"))
             },
 
             favourites: Favourites {
@@ -107,6 +118,10 @@ impl Config {
                 search: Some(String::from("/")),
                 sort: Some(String::from("\t")),
                 favourites: Some(String::from("F"))
+            },
+
+            other: Other {
+                startup_info: Some(true)
             }
 
         }
@@ -218,6 +233,11 @@ pub fn create_config(filename: String) -> Config {
                 .map(|x| x.replace("~", home.as_str().clone())).collect();
             // replace all None values in the Keys struct with the default ones
             config.keys = change_default_keys(config.keys);
+            // replace the highlights.symbol with "" if None
+            config.highlights.symbol = match config.highlights.symbol {
+                Some(v) => Some(v),
+                None => Some(String::new())
+            };
             
             config
 
