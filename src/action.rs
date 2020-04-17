@@ -105,24 +105,20 @@ impl Action {
         // a file:
         // - copy it normal
         for c in content {
+            let p = Path::new(&c);
             // get the name
-            let c_name = &c
-                .split("/")
-                .collect::<Vec<&str>>()
-                .pop()
-                .unwrap()
-                .to_string();
+            let c_name = p.file_name()
+                .unwrap().to_str().unwrap();
             // check if the element is a
             // directory or a file
-            let p = Path::new(&c);
             if p.is_dir() {
                 // copy the directory recursively
-                let new_dir = format!("{}/{}", name.clone(), c_name);
+                let new_dir = format!("{}/{}", name, c_name);
                 self.copy_recursively(base.clone(), new_dir);
             } else {
                 // copy the file normally
-                let from = format!("{}/{}", target.clone(), c_name);
-                let to = format!("{}/{}", name.clone(), c_name);
+                let from = format!("{}/{}", target, c_name);
+                let to = format!("{}/{}", name, c_name);
                 match copy(from.clone(), to.clone()) {
                     Ok(_) => {},
                     Err(_) => {
@@ -165,13 +161,8 @@ impl Action {
             } else {
                 // get the filename
                 let filename = self.check(
-                    c
-                        .split("/")
-                        .collect::<Vec<&str>>()
-                        .clone()
-                        .pop()
-                        .expect("Could not pop last element!")
-                        .to_string()
+                    path.file_name().unwrap()
+                        .to_str().unwrap().to_string()
                 );
         
                 // copy normaly if its a file
