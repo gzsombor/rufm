@@ -48,8 +48,8 @@ impl Action {
     // gets all elements in the cwd
     fn get_dir(path: String) -> Vec<String> {
 
-        read_dir(path)
-            .expect("Could not read directory!")
+        read_dir(path.clone())
+            .expect(format!("Could not read {}!", path.clone()).as_str())
             .map(|res| {
                 res.map(|e| {
                     let mut r = e.path().to_str().unwrap().to_string(); // get the path and put it in a list
@@ -82,22 +82,21 @@ impl Action {
     }
 
     // copies a directory recursively
-    pub fn copy_recursively(&mut self, target: String, name: String) {
+    pub fn copy_recursively(&mut self, base: String, name: String) {
 
         // the target directory to copy
-        let n = name.split("/").collect::<Vec<&str>>();
-        let n = &n[1..n.len()];
-        let target = format!("{}/{}", target, n.join("/"));
+        let mut n = name.split("/").collect::<Vec<&str>>();
+        // remove the first element
+        // (it's the same as the targets last dir name)
+        n.remove(0);
+        let target = format!("{}/{}", base.clone(), n.join("/"));
         // get all the elements of
         // the target directory
         let content = Action::get_dir(target.clone());
         // create the directory to copy to
-        match create_dir(name.clone()) {
-            Ok(_) => {},
-            Err(_) => {
-                self.status = format!("Could not create directory {}!", name.clone());
-                return;
-            }
+        if let Err(_) = create_dir(name.clone()) {
+            self.status = format!("Could not create directory {}!", name.clone());
+            return;
         }
 
         // loop through all elements
@@ -108,7 +107,7 @@ impl Action {
         for c in content {
             // get the name
             let c_name = &c
-                .split('/')
+                .split("/")
                 .collect::<Vec<&str>>()
                 .pop()
                 .unwrap()
@@ -119,7 +118,7 @@ impl Action {
             if p.is_dir() {
                 // copy the directory recursively
                 let new_dir = format!("{}/{}", name.clone(), c_name);
-                self.copy_recursively(target.clone(), new_dir);
+                self.copy_recursively(base.clone(), new_dir);
             } else {
                 // copy the file normally
                 let from = format!("{}/{}", target.clone(), c_name);
@@ -160,7 +159,6 @@ impl Action {
         for c in self.clipboard.clone() {
             // check if the file / directory in the clipboard exists
             let path = Path::new(&c);
-    
             if !path.exists() {
                 self.status = "Copied file does not exist anymore!".to_string();
                 return;
@@ -168,7 +166,7 @@ impl Action {
                 // get the filename
                 let filename = self.check(
                     c
-                        .split('/')
+                        .split("/")
                         .collect::<Vec<&str>>()
                         .clone()
                         .pop()
