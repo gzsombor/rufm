@@ -5,7 +5,9 @@ use crate::widgets::traits::{
 };
 
 use std::{
-    fs::metadata
+    fs,
+    collections::HashMap,
+    os::unix::fs::MetadataExt
 };
 
 use tui::style::{ Style, Color };
@@ -41,16 +43,54 @@ impl Info {
     
         match self.mode {
 
-            InfoMode::Information => match metadata(name) {
+            InfoMode::Information => match fs::metadata(name) {
 
-                Ok(v) => {
-                    let md = v;
-                    // get the info
-                    let len = md.len();
-                    let kind = if md.is_dir() { "d" } else { "f" };
-                    let readonly = if md.permissions().readonly() { "r " } else { "rw" };
+                Ok(md) => {
+
+                    // get the size of the file
+                    let len = md.size();
+                    // the kind of file
+                    let kind = if md.is_dir() { "d" } else { "-" };
+                    // get the permissions and 
+                    // convert the to octal numbers + get only the last three
+                    // => looks like 755 or something
+                    let mode = md.mode();
+                    let mode = format!("{:o}", mode);
+                    // hashmap of permission-numbders
+                    // and their corresponding string
+                    let mut permissions = HashMap::new();
+                    permissions.insert("1", "--x");
+                    permissions.insert("2", "-w-");
+                    permissions.insert("3", "-wx");
+                    permissions.insert("4", "r--");
+                    permissions.insert("5", "r-x");
+                    permissions.insert("6", "rw-");
+                    permissions.insert("7", "rwx");
+                
+                    // get the actual permissions
+                    // from 100xyz to xyz (these are the only important bits)
+                    //
+                    // convert the string to a list of chars
+                    let modes_list: Vec<&str> = mode
+                        .split("").collect();
+                    // get the last four except the last
+                    // explanation: if string is split with an empty seperator,
+                    // rust adds an empty string in the front and back
+                    let mode = &modes_list[modes_list.len() - 4..modes_list.len() - 1];
+                
+                    let mut file_permission = String::from(kind);
+                
+                    // match the permissions to the string bits
+                    for m in mode {
+                        match permissions.get(m) {
+                            // add the according string to the permissions
+                            Some(v) => file_permission.push_str(v),
+                            None => {}
+                        }
+                    }
+
                     // update the content var
-                    self.content = format!("{}  {}  {:>5}", kind, readonly, len);
+                    self.content = format!("{} {:>6}B", file_permission, len);
                 },
 
                 Err(_) => {
