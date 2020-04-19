@@ -394,11 +394,16 @@ fn rufm() {
                 // open the selected file / directory
                 Event::Key(Key::Char('\n')) => {
                     // oepn the file
-                    filelist.open();
-                    // when the file
-                    // gets closed, flush the terminal
-                    terminal.flush().expect("Could not flush the terminal!");
-                    terminal.hide_cursor().expect("Could not hide the cursor!");
+                    if let Err(e) = filelist.open() {
+                        // update the info
+                        info.content = e.to_string();
+                        info.mode = InfoMode::Status;
+                    } else {
+                        // when the file
+                        // gets closed, flush the terminal
+                        terminal.flush().expect("Could not flush the terminal!");
+                        terminal.hide_cursor().expect("Could not hide the cursor!");
+                    }
                 },
 
 	            _ => {}

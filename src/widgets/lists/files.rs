@@ -126,14 +126,14 @@ impl FileList {
 
     // opens the selected file with the editor
     // specified in $EDITOR
-    pub fn open(&self) {
+    pub fn open(&self) -> Result<(), &str> {
         let (cmd, args) = match &self.open_cmd {
             Some(v) => {
                 // split the commmand by whitspaces
                 let parts: Vec<String> = v.split(" ")
                     .map(|x| x.to_string()).collect();
                 // get the first element and the arguments
-                let cmd = parts.iter().nth(0).expect("The command to open files is empty");
+                let cmd = parts.iter().nth(0).expect("Var 'open_cmd' is empty!");
                 let mut args = parts[1..parts.len()].to_vec();
                 // add the filename
                 args.push(self.get_current_selected());
@@ -141,8 +141,10 @@ impl FileList {
             },
             None => {
                 // get the value of $EDITOR
-                let editor = var("EDITOR")
-                    .expect("Please specify an editor in the $EDITOR variable!");
+                let editor = match var("EDITOR") {
+                    Ok(v) => v,
+                    Err(_) => return Err("No $EDITOR defined!")
+                };
                 let args = vec![self.get_current_selected()];
                 (editor, args)
             }
@@ -150,9 +152,14 @@ impl FileList {
 
         // start the editing command 
         // simply editor filename
-        Command::new(cmd.clone())
-            .args(args)
-            .stdout(Stdio::inherit()).spawn().expect(format!("{} failed to start!", cmd).as_str());
+        let mut edit_cmd = Command::new(cmd.clone());
+        edit_cmd.args(args).stdout(Stdio::inherit());
+        // run the cmd
+        if let Err(_) = edit_cmd.spawn() {
+            Err("Editor failed to open!") 
+        } else { 
+            Ok(())
+        }
     }
 
     // return the list of files with the selected files colored
