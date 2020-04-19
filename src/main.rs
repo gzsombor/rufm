@@ -79,7 +79,8 @@ fn rufm() {
     let mut search = widgets::Search::new(
         config.borders.search
     ); let mut filelist = widgets::FileList::new(
-        config.borders.filelist
+        config.borders.filelist,
+        config.other.open_cmd
     ); let mut preview = widgets::Preview::new(
         config.borders.preview
     ); let mut favourites = widgets::Favourites::new(
@@ -139,7 +140,14 @@ fn rufm() {
         draw(&selected, &config.highlights, &info, &preview, &favourites, &search, &filelist, &mut terminal);
 
         // get the next event
-        let event = events.next().unwrap().unwrap(); 
+        let event = match events.next() {
+            Some(v) => match v {
+                Ok(e) => e,
+                Err(_) => continue
+            },
+            None => continue
+        };
+
         // match events
         // specific to selected item
         match selected {
@@ -293,7 +301,7 @@ fn rufm() {
 	            
 	            // quit
 	            Event::Key(Key::Char('q')) => {
-	                terminal.clear().expect("Could not clear the terminal!");
+                    terminal.clear().expect("Could not clear the terminal!");
 	                break;
 	            },
 	
@@ -383,6 +391,16 @@ fn rufm() {
                     filelist.toggle_select();
                 },
 
+                // open the selected file / directory
+                Event::Key(Key::Char('\n')) => {
+                    // oepn the file
+                    filelist.open();
+                    // when the file
+                    // gets closed, flush the terminal
+                    terminal.flush().expect("Could not flush the terminal!");
+                    terminal.hide_cursor().expect("Could not hide the cursor!");
+                },
+
 	            _ => {}
 	
 	        },
@@ -421,9 +439,8 @@ fn rufm() {
 
             }
 
-        }
-       
+        } 
         
     }
-    
+
 }

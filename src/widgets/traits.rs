@@ -7,6 +7,7 @@
 use std::borrow::Cow;
 
 use tui::widgets::Text;
+use tui::style::Style;
 
 // gets implemented on all
 // scrollable lists
@@ -63,7 +64,7 @@ pub trait CustomParagraph {
         // create a vector out of
         // the input string which can 
         // be used with Paragraph::new()
-        vec![Text::Raw(Cow::Owned(content))]
+        vec![Text::Styled(Cow::Owned(content), Style::default())]
 
     }
 

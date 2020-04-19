@@ -69,7 +69,8 @@ pub struct Highlights {
 #[derive(Deserialize)]
 pub struct Other {
 
-    pub startup_info: Option<bool>
+    pub startup_info: Option<bool>,
+    pub open_cmd: Option<String>
 
 }
 
@@ -123,7 +124,8 @@ impl Config {
             },
 
             other: Other {
-                startup_info: Some(true)
+                startup_info: Some(true),
+                open_cmd: None
             }
 
         }

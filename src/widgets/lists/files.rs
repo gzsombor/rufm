@@ -3,8 +3,11 @@
 use std::{
     path::Path,
     fs::read_dir,
+    env::var,
     env::current_dir,
     env::set_current_dir,
+    process::Command,
+    process::Stdio,
     iter::Iterator
 };
 
@@ -23,7 +26,8 @@ pub struct FileList {
     pub content: Vec<String>, // all items
     pub key: String, // the search key
     pub sort_style: i8, // the sorting style; 0 = nothing, 1 = search, 2 = abc; 3 = len
-    pub border_style: Style // border colors
+    pub border_style: Style, // border colors
+    pub open_cmd: Option<String> // the command, which opens a file
 
 }
 
@@ -54,7 +58,7 @@ impl FileList {
 
     // creates a new file list with
     // the content of the current directory
-    pub fn new(bs: [u8; 3]) -> Self {
+    pub fn new(bs: [u8; 3], oc: Option<String>) -> Self {
 
         // get all elements off the cwd
         let cwd_content = Self::get_dir();
@@ -67,7 +71,8 @@ impl FileList {
             content: cwd_content,
             key: String::new(),
             sort_style: 0,
-            border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2]))
+            border_style: Style::default().fg(Color::Rgb(bs[0], bs[1], bs[2])),
+            open_cmd: oc
 
         }
     
@@ -117,6 +122,37 @@ impl FileList {
             None => self.selected.push(path)
         }
 
+    }
+
+    // opens the selected file with the editor
+    // specified in $EDITOR
+    pub fn open(&self) {
+        let (cmd, args) = match &self.open_cmd {
+            Some(v) => {
+                // split the commmand by whitspaces
+                let parts: Vec<String> = v.split(" ")
+                    .map(|x| x.to_string()).collect();
+                // get the first element and the arguments
+                let cmd = parts.iter().nth(0).expect("The command to open files is empty");
+                let mut args = parts[1..parts.len()].to_vec();
+                // add the filename
+                args.push(self.get_current_selected());
+                (cmd.clone(), args)
+            },
+            None => {
+                // get the value of $EDITOR
+                let editor = var("EDITOR")
+                    .expect("Please specify an editor in the $EDITOR variable!");
+                let args = vec![self.get_current_selected()];
+                (editor, args)
+            }
+        };
+
+        // start the editing command 
+        // simply editor filename
+        Command::new(cmd.clone())
+            .args(args)
+            .stdout(Stdio::inherit()).spawn().expect(format!("{} failed to start!", cmd).as_str());
     }
 
     // return the list of files with the selected files colored

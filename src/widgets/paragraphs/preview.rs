@@ -105,9 +105,7 @@ impl Preview {
 impl CustomParagraph for Preview {
 
     fn items(&self) -> String {
-
         self.content.clone()
-
     }
 
 }
