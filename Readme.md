@@ -1,4 +1,5 @@
-# Rufm - **Ru**st **Fi**le **Ma**nager
+# Rufm
+## **Ru**st **F**ile **M**anager
 
 Rufm is a file manager written in rust with a responsive terminal user interface (tui) and basic functionality for linux.
 
@@ -109,9 +110,9 @@ Keyboard shortcuts:
 
 Capital letters stand for actions, non-capital letters for navigation.
 
-- D => Deletes a file or directory (with confirmation prompt)
-- C => Copies a file or directory
-- P => Pastes a copied file or directory
+- D => Deletes all selected files / directories + the current selected one
+- C => Copies all selected files / directories + the current selected one
+- P => Pastes all copied files / directories
 - R => Renames a file or directory
 
 - F => Switch to the favourites tab
@@ -125,7 +126,8 @@ All of the top keybindings can be changed in the configuration file.
 - Esc => Exit and switch back to the filelist
 - Enter => What enter normally does
 
-h, j, k, l (vim keys) or the four arrow keys can be used for navigation.
+Use the vim or the four arrow keys for navigation.
+If you want to quit use q.
 
 # 
 ## Dependencies
