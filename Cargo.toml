@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 # for drawing
 # the user interface
-tui = "*"
+tui = "0.9.1"
 termion = "*"
 
 # for reading 

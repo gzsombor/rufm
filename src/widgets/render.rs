@@ -5,7 +5,7 @@ use tui::backend::Backend;
 
 use tui::style::{Color, Style, Modifier};
 use tui::layout::{Layout, Direction, Constraint, Alignment};
-use tui::widgets::{Paragraph, Block, Borders, SelectableList};
+use tui::widgets::{Paragraph, Block, Borders, List, ListState, Text};
 
 use super::*;
 
@@ -117,8 +117,8 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
         let cwd = current_dir().expect("Could not get the cwd!");
         let file_list_title = format!(" -> {} ", cwd.display());
         let file_list_items = &filelist.display();
-        let mut file_list = SelectableList::default()
-            .items(file_list_items)
+        let mut file_list_state = ListState::default();
+        let mut file_list = List::new(file_list_items.iter().map(|i| Text::raw(i.clone())))
             .block(custom_block.title(file_list_title.as_str()).border_style(filelist.border_style))
             .highlight_style(custom_select_style)
             .highlight_symbol(custom_highlight_symbol.as_str());
@@ -127,7 +127,7 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
         // preview paragraph
         let preview_display = preview.display();
-        let mut preview_pgraph = Paragraph::new(preview_display.iter())
+        let preview_pgraph = Paragraph::new(preview_display.iter())
             .block(custom_block.title(" Preview ").border_style(preview.border_style))
             .style(Style::default().fg(Color::White))
             .alignment(Alignment::Left)
@@ -137,11 +137,12 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
         // favourites list normal
         // style the selected items
-        let mut favourites_list = SelectableList::default()
-            .items(&favs.names)
+        let fav_names = favs.names.iter();
+        let mut favourites_list = List::new(fav_names.map(|i| Text::raw(i.clone())))
             .block(custom_block.title(" Favourites ").border_style(favs.border_style))
             .highlight_style(custom_select_style)
             .highlight_symbol(custom_highlight_symbol.as_str());
+        let mut favourites_list_state = ListState::default();
 
 
 
@@ -161,14 +162,16 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
             Selectable::FileList => {
                 // add colored border and select the current item
                 file_list = file_list 
-                    .block(custom_block.title(file_list_title.as_str()).border_style(custom_border_style_selected))
+                    .block(custom_block.title(file_list_title.as_str()).border_style(custom_border_style_selected));
+                file_list_state
                     .select(Some(filelist.current));
             },
 
             Selectable::Favourites => {
                 // add colored border and select the current item
                 favourites_list = favourites_list
-                    .block(custom_block.title(" Favourites ").border_style(custom_border_style_selected))
+                    .block(custom_block.title(" Favourites ").border_style(custom_border_style_selected));
+                favourites_list_state
                     .select(Some(favs.current));
 
             },
@@ -177,11 +180,12 @@ pub fn draw<B: Backend> // <Backend: tui::backend::Backend>
 
         
         // render all elements in their chunk
-        f.render(&mut search_pgraph, chunks_top[0]);
-        f.render(&mut info_pgraph, chunks_top[1]);
-        f.render(&mut file_list, chunks_bottom[0]);
-        f.render(&mut preview_pgraph, chunks_bottom_right[0]);
-        f.render(&mut favourites_list, chunks_bottom_right[1]);
+        f.render_widget(search_pgraph, chunks_top[0]);
+        f.render_widget(info_pgraph, chunks_top[1]);
+        f.render_stateful_widget(file_list, chunks_bottom[0], &mut file_list_state);
+
+        f.render_widget(preview_pgraph, chunks_bottom_right[0]);
+        f.render_stateful_widget(favourites_list, chunks_bottom_right[1], &mut favourites_list_state);
 
     }).expect("Could not draw to terminal!");
 
