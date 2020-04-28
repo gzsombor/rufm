@@ -296,22 +296,19 @@ impl FileList {
             None => return true
         }; // function to check if unicode
         // points to a special char
-        let spec = |x: &u8| -> bool {
-            if x < &65 || x > &122 {
+        let spec = |x: &usize| -> bool {
+            if x < &41 {
                 true
             } else {
                 false
             }
-        }; // check if the sorted element
+        } // check if the sorted element
         // or inserted elemnt is a special char
-        if spec(ins_char) && !spec(sor_char) {
-            println!("Spec case!");
+        if ins_char < &41 && sor_char >= &41 {
             return false
-        } else if !spec(ins_char) && spec(sor_char) {
-            println!("Spec case!");
+        } else if ins_char >= &41 && sor_char < &41 {
             return true
-        } else if spec(ins_char) && spec(sor_char) {
-            println!("Spec case!");
+        } else if ins_char < &41 && sor_char < &41 {
             return Self::find_place(i + 1, ins_elem, sor_elem)
         } // check if the place is right
         // unicode val smaller

@@ -91,10 +91,9 @@ impl Info {
         let mut file_permission = String::from(kind);
         // match the permissions to the string bits
         for m in mode {
-            match permissions.get(m) {
+            if let Some(v) = permissions.get(m) {
                 // add the according string to the permissions
-                Some(v) => file_permission.push_str(v),
-                None => {}
+                file_permission.push_str(v);
             }
         }
 
