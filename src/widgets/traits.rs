@@ -6,17 +6,16 @@
 
 use std::borrow::Cow;
 
-use tui::widgets::Text;
 use tui::style::Style;
+use tui::widgets::Text;
 
 // gets implemented on all
 // scrollable lists
 pub trait CustomList {
-
     fn get_len(&self) -> usize;
     fn get_current(&self) -> usize;
-    fn set_current(&mut self, new: usize); 
-    
+    fn set_current(&mut self, new: usize);
+
     // scrolls up in the list
     fn scroll_up(&mut self) {
         let cur = self.get_current();
@@ -46,33 +45,27 @@ pub trait CustomList {
     fn scroll_bottom(&mut self) {
         self.set_current(self.get_len());
     }
-
 }
 
 // gets implemented on all paragraphs
 pub trait CustomParagraph {
-
     // return all important items
     // for displaying
     fn items(&self) -> String;
 
     fn display(&self) -> Vec<Text> {
-
         // get all important items
         let content = self.items();
-        
+
         // create a vector out of
-        // the input string which can 
+        // the input string which can
         // be used with Paragraph::new()
         vec![Text::Styled(Cow::Owned(content), Style::default())]
-
     }
-
 }
 
 // gets implemented on all paragraphs
 pub trait EditableParagraph {
-
     // return all important items
     // for displaying
     fn get_content(&self) -> String;
@@ -97,5 +90,4 @@ pub trait EditableParagraph {
     fn clear(&mut self) {
         self.set_content(String::new());
     }
-
 }

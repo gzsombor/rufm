@@ -1,6 +1,6 @@
 // load the files
-pub mod structs;
 pub mod config;
+pub mod structs;
 
 // import the needed stuff
 pub use config::create_config;

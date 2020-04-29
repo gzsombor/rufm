@@ -1,30 +1,19 @@
 use std::{
-    str,
-    process::Command,
-    env::current_dir, 
-    fs::copy, 
-    fs::create_dir, 
-    fs::read_dir, 
-    fs::remove_dir_all, 
-    fs::remove_file,
-    fs::rename,
-    path::Path,
+    env::current_dir, fs::copy, fs::create_dir, fs::read_dir, fs::remove_dir_all, fs::remove_file,
+    fs::rename, path::Path, process::Command, str,
 };
 
 pub struct Action {
-
     pub clipboard: Vec<String>, // path of a file or directory
-    pub status: String    // status message, display in info widget
-
+    pub status: String,         // status message, display in info widget
 }
 
 impl Action {
-
     // create a new action
     pub fn new() -> Self {
         Self {
             clipboard: Vec::new(),
-            status: String::new()
+            status: String::new(),
         }
     }
 
@@ -36,44 +25,41 @@ impl Action {
 
     // gets all elements in the cwd
     fn get_dir(path: String) -> Vec<String> {
-
         read_dir(path.clone())
-            .expect(format!("Could not read {}!", path.clone()).as_str())
+            .expect(format!("Could not read {}!", path).as_str())
             .map(|res| {
                 res.map(|e| {
-                    let mut r = e.path().to_str().unwrap().to_string(); // get the path and put it in a list
+                    // get the path and put it in a list
+                    let mut r = e.path().to_str().unwrap().to_string();
                     // removes the annoying "./" before the elements
-                    if &r[0..2] == "./" { 
+                    if &r[0..2] == "./" {
                         r.remove(0);
                         r.remove(0);
                     };
-                    r
+                    return r;
                 })
-            }).map(|x| x.unwrap()) // gets the actual values
+            })
+            .map(|x| x.unwrap()) // gets the actual values
             .collect::<Vec<String>>() // saves them in a Vector of Strings
-
     }
 
     // add to vector, if it isn't in it
     fn add_if_not_found(mut vector: Vec<String>, element: String) -> Vec<String> {
         // check if it's found
-        match vector.iter().find(|&x| {
+        if vector.iter().find(|&x| {
             // get the filename
-            Path::new(x).file_name()
-                .unwrap().to_str().unwrap() == element.as_str()
-        }) { // do nothing
-            Some(_) => {},
+            Path::new(x).file_name().unwrap().to_str().unwrap() == element.as_str()
+        }).is_none() {
             // add it (the full path)
-            None => vector.push(format!("{}/{}", Action::get_cwd(), element))
+            vector.push(format!("{}/{}", Action::get_cwd(), element));
         } // return the new list
         vector
     }
 
     // copies a directory recursively
     pub fn copy_recursively(&mut self, base: String, name: String) {
-
         // the target directory to copy
-        let mut n = name.split("/").collect::<Vec<&str>>();
+        let mut n = name.split('/').collect::<Vec<&str>>();
         // remove the first element
         // (it's the same as the targets last dir name)
         n.remove(0);
@@ -82,7 +68,7 @@ impl Action {
         // the target directory
         let content = Action::get_dir(target.clone());
         // create the directory to copy to
-        if let Err(_) = create_dir(name.clone()) {
+        if create_dir(name.clone()).is_err() {
             self.status = format!("Could not create directory {}!", name.clone());
             return;
         }
@@ -95,8 +81,7 @@ impl Action {
         for c in content {
             let p = Path::new(&c);
             // get the name
-            let c_name = p.file_name()
-                .unwrap().to_str().unwrap();
+            let c_name = p.file_name().unwrap().to_str().unwrap();
             // check if the element is a
             // directory or a file
             if p.is_dir() {
@@ -107,16 +92,12 @@ impl Action {
                 // copy the file normally
                 let from = format!("{}/{}", target, c_name);
                 let to = format!("{}/{}", name, c_name);
-                match copy(from.clone(), to.clone()) {
-                    Ok(_) => {},
-                    Err(_) => {
-                        self.status = format!("Could not copy {}!", from);
-                        return;
-                    }
+                if copy(from.clone(), to.clone()).is_err() {
+                    self.status = format!("Could not copy {}!", from);
+                    return;
                 }
             }
         }
-
     }
 
     // adds the name to the clipboard
@@ -133,7 +114,6 @@ impl Action {
 
     // pastes the clipboard to current location
     pub fn paste(&mut self) {
-
         if self.clipboard.is_empty() {
             self.status = "Clipboard empty!".to_string();
             return;
@@ -148,21 +128,13 @@ impl Action {
                 return;
             } else {
                 // get the filename
-                let filename = self.check(
-                    path.file_name().unwrap()
-                        .to_str().unwrap().to_string()
-                );
-        
+                let filename = self.check(path.file_name().unwrap().to_str().unwrap().to_string());
+
                 // copy normaly if its a file
                 // else recursively
-                if path.is_file() {
-                    match copy(c.clone(), &filename) {
-                        Ok(_) => {},
-                        Err(_) => {
-                            self.status = "Could not copy the file / directory!".to_string();
-                            return;
-                        }
-                    }
+                if path.is_file() && copy(c.clone(), &filename).is_err() {
+                    self.status = "Could not copy the file / directory!".to_string();
+                    return;
                 } else {
                     self.copy_recursively(c, filename.clone());
                 }
@@ -171,48 +143,43 @@ impl Action {
 
         // update the status
         self.status = "Pasted clipboard!".to_string();
-
     }
 
     // checks if filename exists,
     // adds _copy and restarts
     fn check(&self, name: String) -> String {
-
         // check if file with similar name already exists
         // read the dir and convert the result a string vector
         let cwd_content = Action::get_dir("./".to_string());
         for c in cwd_content {
             if c == name {
                 // rerun the function with " _copy
-                return self.check(name.clone() + "_copy");
+                return self.check(name + "_copy");
             }
         }
         // return the name, if
         // it wasn't found in the current directory
         name
-
     }
 
     // deletes the specified directory
     pub fn delete(&mut self, selected: Vec<String>, name: String) {
         // add the current selected element
         // if it isn't already in the list
-        let elements = Action::add_if_not_found(selected.clone(), name);
+        let elements = Action::add_if_not_found(selected, name);
 
         for c in elements {
             // create path to access information
             let path = Path::new(&c);
             // remove it
             if path.is_dir() {
-                if let Err(_) = remove_dir_all(path) {
+                if remove_dir_all(path).is_err() { 
                     self.status = format!("Failed to delete {}!", path.display());
                     return;
                 }
-            } else {
-                if let Err(_) = remove_file(path) {
-                    self.status = format!("Failed to delete {}!", path.display());
-                    return;
-                }
+            } else if remove_file(path).is_err() {
+                self.status = format!("Failed to delete {}!", path.display());
+                return;
             }
         }
         // update the status
@@ -225,16 +192,15 @@ impl Action {
         self.status = match rename(name.clone(), new.clone()) {
             // update the status accordingly
             Ok(_) => format!("Renamed {} to {}!", name, new),
-            Err(_) => format!("Could not rename {} to {}!", name, new)
+            Err(_) => format!("Could not rename {} to {}!", name, new),
         }
-
     }
 
     // runs the inputed command
     pub fn run_cmd(&mut self, input: String) {
         // get the actual cmd (first element)
-        let cmd_list: Vec<&str> = input.split(" ").collect();
-        let first = match cmd_list.iter().nth(0) {
+        let cmd_list: Vec<&str> = input.split(' ').collect();
+        let first = match cmd_list.get(0) {
             Some(v) => v,
             None => {
                 self.status = "No input!".to_string();
@@ -255,15 +221,12 @@ impl Action {
                 // check if command returned output
                 let output = str::from_utf8(&v.stdout).expect("Could not decode terminal output!");
                 if output == "" {
-                    let output = "Success => no output".to_string();
-                    output
+                    "Success => no output".to_string()
                 } else {
-                    let output = format!("Success => {}", output);
-                    output
+                    format!("Success => {}", output)
                 }
-            },
-            Err(_) => "Command failed!".to_string()
+            }
+            Err(_) => "Command failed!".to_string(),
         };
-    } 
-
+    }
 }
