@@ -286,13 +286,10 @@ impl FileList {
         }; // check if the sorted element
            // or inserted elemnt is a special char
         if spec(ins_char) && !spec(sor_char) {
-            println!("Spec case!");
             return false;
         } else if !spec(ins_char) && spec(sor_char) {
-            println!("Spec case!");
             return true;
         } else if spec(ins_char) && spec(sor_char) {
-            println!("Spec case!");
             return Self::find_place(i + 1, ins_elem, sor_elem);
         } // check if the place is right
           // unicode val smaller
