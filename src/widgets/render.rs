@@ -187,11 +187,7 @@ pub fn draw<B: Backend>(
             f.render_stateful_widget(file_list, chunks_bottom[0], &mut file_list_state);
 
             f.render_widget(preview_pgraph, chunks_bottom_right[0]);
-            f.render_stateful_widget(
-                favourites_list,
-                chunks_bottom_right[1],
-                &mut favourites_list_state,
-            );
+            f.render_stateful_widget(favourites_list, chunks_bottom_right[1], &mut favourites_list_state);
         })
         .expect("Could not draw to terminal!");
 }

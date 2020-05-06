@@ -28,17 +28,17 @@ impl Options {
         loop {
             // get the next argument
             let arg = args.next();
-            match arg {
+            let stop = match arg {
                 // if its found, match it
                 Some(a) => match a.as_str() {
                     // help menu
-                    "-h" | "--help" => self.help(),
+                    "-h" | "--help" => self.help(None),
                     // custom directory
                     "-d" | "--directory" => {
                         let next_arg = args.next();
                         match next_arg {
                             Some(v) => self.change(v.clone()),
-                            None => self.help(),
+                            None => self.help(Some("No directory specified!")),
                         }
                     }
                     // custom path to config
@@ -46,21 +46,24 @@ impl Options {
                         let next_arg = args.next();
                         match next_arg {
                             Some(v) => self.config(v.clone()),
-                            None => self.help(),
+                            None => self.help(Some("No configuration file specified!")),
                         }
                     }
-                    _ => self.help(),
+                    a => self.help(Some(format!("No such option: {}", a).as_str())),
                 },
                 // else, stop the function
                 None => break,
+            };
+            // check if program should stop
+            if stop {
+                exit(1);
             }
         }
     }
 
     // help menu
-    fn help(&self) {
-        println!(
-            "
+    fn help(&self, failmsg: Option<&str>) -> bool {
+        let help_menu = String::from("
 Rufm - A file manager written in Rust
 -------------------------------------
 
@@ -73,25 +76,35 @@ Options:
     -c | --config <path>        use the config file at <path>
 "
         );
-        exit(1);
+        // check if a fail message
+        // is provided => print it
+        if let Some(msg) = failmsg {
+            println!("\n{}\nUse --help for the help menu!", msg);
+            return true
+        }
+        // print the real help menu
+        println!("{}", help_menu);
+        true
     }
 
     // changes to target directory
-    fn change(&self, target: String) {
+    fn change(&self, target: String) -> bool {
         if set_current_dir(target.clone()).is_err() {
             println!("Could not change to {}, aborting ...", target);
-            exit(1);
+            return true
         }
+        return false
     }
 
     // sets new path for config file
-    fn config(&mut self, target: String) {
+    fn config(&mut self, target: String) -> bool {
         let p = Path::new(&target);
         if p.is_file() {
             self.config = target;
+            false
         } else {
             println!("No such file: {}", target);
-            exit(1);
+            true
         }
     }
 }
