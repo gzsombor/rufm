@@ -1,5 +1,5 @@
 // import the needed trait
-use crate::widgets::traits::{CustomParagraph, EditableParagraph};
+use crate::widgets::traits::CustomParagraph;
 
 use std::{collections::HashMap, fs, os::unix::fs::MetadataExt};
 
@@ -81,11 +81,11 @@ impl Info {
                     let file_permission = Info::get_permissions(md);
                     // update the content var
                     // the string gets split at the tab
-                    self.content = format!("\n{}\t\n{:>6}B", file_permission, len);
+                    self.content = format!("{}\t{:>6}B", file_permission, len);
                 }
 
                 Err(_) => {
-                    self.content = "No information avaible!".to_string();
+                    self.content = "No information avaible!\t".to_string();
                 }
             },
             InfoMode::Status => self.mode = InfoMode::Information,

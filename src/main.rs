@@ -183,6 +183,8 @@ fn rufm() {
                                 info.mode = InfoMode::Status;
                                 // clear the selected elements
                                 filelist.selected = Vec::new();
+                                // clear the search
+                                search.clear();
                             }
 
                             Input::Command => {
@@ -193,6 +195,8 @@ fn rufm() {
                                 info.mode = InfoMode::Status;
                                 // clear the selected elements
                                 filelist.selected = Vec::new();
+                                // clear the search
+                                search.clear();
                             }
 
                             Input::Search => {
@@ -202,7 +206,6 @@ fn rufm() {
                             }
                         }
                         // clear the search and select the filelist
-                        search.clear();
                         selected = Selectable::FileList;
                     }
 
@@ -276,9 +279,6 @@ fn rufm() {
 
                     _ => {}
                 },
-
-                _ => {}
-
             },
 
             Selectable::FileList => match event {
@@ -334,6 +334,7 @@ fn rufm() {
                 // delete the file / directory
                 Event::Key(Key::Char(c)) if c == key_delete => {
                     // update the info graph
+                    search.clear();
                     search.content = "Really? (y/n)".to_string();
                     search.mode = SearchMode::Confirm(Confirm::Delete);
                     // change selected field

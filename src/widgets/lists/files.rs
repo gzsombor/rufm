@@ -96,7 +96,7 @@ impl FileList {
                 self.selected = Vec::new();
                 Ok(())
             }
-            Err(_) => Err("Could not change back!".to_string())
+            Err(_) => Err("Could not change back!\t".to_string())
         }
     }
 
@@ -110,7 +110,7 @@ impl FileList {
                 self.selected = Vec::new();
                 Ok(())
             }
-            Err(_) => Err(format!("Could not change to {}!", path)),
+            Err(_) => Err(format!("Could not change to\t{}", path)),
         }
     }
 
