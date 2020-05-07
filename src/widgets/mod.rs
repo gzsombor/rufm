@@ -29,12 +29,13 @@ pub use lists::favourites::Favourites;
 pub use lists::files::FileList;
 pub use lists::files::SortStyles;
 
-pub use paragraphs::info::Confirm;
 pub use paragraphs::info::Info;
 pub use paragraphs::info::InfoMode;
-pub use paragraphs::info::Input;
 pub use paragraphs::preview::Preview;
 pub use paragraphs::search::Search;
+pub use paragraphs::search::SearchMode;
+pub use paragraphs::search::Input;
+pub use paragraphs::search::Confirm;
 
 pub use traits::{CustomList, CustomParagraph, EditableParagraph};
 
@@ -43,7 +44,6 @@ pub use render::draw;
 // widgets that can
 // be selected -> scrollable or editable
 pub enum Selectable {
-    Info,
     Search,
     FileList,
     Favourites,

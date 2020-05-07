@@ -53,14 +53,22 @@ pub trait CustomParagraph {
     // for displaying
     fn items(&self) -> String;
 
-    fn display(&self) -> Vec<Text> {
+    fn display(&self) -> Vec<Vec<Text>> {
         // get all important items
-        let content = self.items();
-
+        let content: Vec<String> = self.items()
+            .split('\t').map(|x| x.to_string()).collect();
         // create a vector out of
         // the input string which can
         // be used with Paragraph::new()
-        vec![Text::Styled(Cow::Owned(content), Style::default())]
+        let mut text = Vec::new();
+        for i in content {
+            // create a vector with this element
+            let v = vec![Text::Styled(Cow::Owned(i), Style::default())];
+            // push it to the vector with all texts
+            text.push(v);
+        }
+        // return the texts vector
+        text.clone()
     }
 }
 

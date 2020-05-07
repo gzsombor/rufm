@@ -45,7 +45,7 @@ pub fn draw<B: Backend>(
     terminal
         .draw(|mut f| {
             // layout
-
+            //
             // splits the screen in a small top row
             // and a big bottom row
             let chunks_vert = Layout::default()
@@ -61,6 +61,13 @@ pub fn draw<B: Backend>(
                 .margin(0)
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                 .split(chunks_vert[0]);
+
+            // splits the info into two bits
+            let chunks_top_right = Layout::default()
+                .direction(Direction::Horizontal)
+                .margin(0)
+                .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                .split(chunks_top[1]);
 
             // splits the bottom into a fileslist
             let chunks_bottom = Layout::default()
@@ -78,7 +85,7 @@ pub fn draw<B: Backend>(
                 .split(chunks_bottom[1]);
 
             // search paragraph
-            let search_display = search.display();
+            let search_display = &search.display()[0];
             let mut search_pgraph = Paragraph::new(search_display.iter())
                 .block(
                     custom_block
@@ -90,15 +97,24 @@ pub fn draw<B: Backend>(
                 .wrap(true);
 
             // info paragraph
-            let info_display = info.display();
-            let mut info_pgraph = Paragraph::new(info_display.iter())
+            let info_display_perm = &info.display()[0];
+            let info_display_size = &info.display()[1];
+            let info_pgraph_perm = Paragraph::new(info_display_perm.iter())
                 .block(
-                    custom_block
+                    Block::default().borders(Borders::TOP | Borders::LEFT | Borders::BOTTOM)
                         .title(info.get_title())
                         .border_style(info.border_style),
                 )
                 .style(Style::default().fg(Color::White))
                 .alignment(Alignment::Left)
+                .wrap(true);
+            let info_pgraph_size = Paragraph::new(info_display_size.iter())
+                .block(
+                    Block::default().borders(Borders::TOP | Borders::RIGHT | Borders::BOTTOM)
+                        .border_style(info.border_style),
+                )
+                .style(Style::default().fg(Color::White))
+                .alignment(Alignment::Right)
                 .wrap(true);
 
             // create the lists
@@ -116,7 +132,7 @@ pub fn draw<B: Backend>(
                 .highlight_symbol(custom_highlight_symbol.as_str());
 
             // preview paragraph
-            let preview_display = preview.display();
+            let preview_display = &preview.display()[0];
             let preview_pgraph = Paragraph::new(preview_display.iter())
                 .block(
                     custom_block
@@ -142,20 +158,11 @@ pub fn draw<B: Backend>(
 
             // color the selected list
             match selected {
-                Selectable::Info => {
-                    // add colored border
-                    info_pgraph = info_pgraph.block(
-                        custom_block
-                            .title(info.get_title())
-                            .border_style(custom_border_style_selected),
-                    );
-                }
-
                 Selectable::Search => {
                     // add colored border
                     search_pgraph = search_pgraph.block(
                         custom_block
-                            .title(" Search ")
+                            .title(search.get_title())
                             .border_style(custom_border_style_selected),
                     );
                 }
@@ -183,7 +190,8 @@ pub fn draw<B: Backend>(
 
             // render all elements in their chunk
             f.render_widget(search_pgraph, chunks_top[0]);
-            f.render_widget(info_pgraph, chunks_top[1]);
+            f.render_widget(info_pgraph_perm, chunks_top_right[0]);
+            f.render_widget(info_pgraph_size, chunks_top_right[1]);
             f.render_stateful_widget(file_list, chunks_bottom[0], &mut file_list_state);
 
             f.render_widget(preview_pgraph, chunks_bottom_right[0]);

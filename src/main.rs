@@ -13,7 +13,7 @@ use std::env::current_dir;
 use widgets::{
     // functions
     draw,
-    Confirm,
+
     // traits
     CustomList,
     CustomParagraph,
@@ -21,7 +21,9 @@ use widgets::{
 
     // enums
     InfoMode,
+    SearchMode,
     Input,
+    Confirm,
     Selectable,
     SortStyles,
 };
@@ -55,61 +57,24 @@ fn rufm() {
     options.eval();
     // create configuration
     let config = create_config(options.config.clone());
+
+    // function to get the first char
+    let get_keybind = |key: String, name: &str| {
+        // get the chars
+        key.chars().next()
+            .expect(format!("Keybinding ({}) not a single character!", name).as_str())
+    };
+
     // keybindings
-    let key_rename = config
-        .keys
-        .rename
-        .chars()
-        .nth(0)
-        .expect("Keybinding (rename) not a single letter!");
-    let key_copy = config
-        .keys
-        .copy
-        .chars()
-        .nth(0)
-        .expect("Keybinding (copy) not a single letter!");
-    let key_paste = config
-        .keys
-        .paste
-        .chars()
-        .nth(0)
-        .expect("Keybinding (paste) not a single letter!");
-    let key_delete = config
-        .keys
-        .delete
-        .chars()
-        .nth(0)
-        .expect("Keybinding (delete) not a single letter!");
-    let key_search = config
-        .keys
-        .search
-        .chars()
-        .nth(0)
-        .expect("Keybinding (search) not a single letter!");
-    let key_sort = config
-        .keys
-        .sort
-        .chars()
-        .nth(0)
-        .expect("Keybinding (sort) not a single letter!");
-    let key_favourites = config
-        .keys
-        .favourites
-        .chars()
-        .nth(0)
-        .expect("Keybinding (favourites) not a single letter!");
-    let key_select = config
-        .keys
-        .select
-        .chars()
-        .nth(0)
-        .expect("Keybinding (select) not a single letter!");
-    let key_command = config
-        .keys
-        .command
-        .chars()
-        .nth(0)
-        .expect("Keybinding (command) not a single letter!");
+    let key_rename = get_keybind(config.keys.rename, "rename");
+    let key_copy = get_keybind(config.keys.copy, "copy");
+    let key_paste = get_keybind(config.keys.paste, "paste");
+    let key_delete = get_keybind(config.keys.delete, "delete");
+    let key_search = get_keybind(config.keys.search, "search");
+    let key_sort = get_keybind(config.keys.sort, "sort");
+    let key_favourites = get_keybind(config.keys.favourites, "favourites");
+    let key_select = get_keybind(config.keys.select, "select");
+    let key_command = get_keybind(config.keys.command, "command");
 
     // Widgets
     let mut search = widgets::Search::new(config.borders.search);
@@ -120,7 +85,8 @@ fn rufm() {
         config.favourites.names.clone(),
         config.favourites.paths.clone(),
     );
-    let mut info = widgets::Info::new(config.borders.info); // current selected element
+    let mut info = widgets::Info::new(config.borders.info);
+    // current selected element
     let mut selected = Selectable::FileList;
     // actions
     let mut action = Action::new();
@@ -202,131 +168,117 @@ fn rufm() {
         // match events
         // specific to selected item
         match selected {
-            Selectable::Info => {
-                match info.mode {
-                    InfoMode::Input(v) => match event {
-                        // run the current action
-                        Event::Key(Key::Char('\n')) => {
-                            match v {
-                                Input::Rename => {
-                                    action.rename(
-                                        filelist.get_current_selected(),
-                                        info.get_content(),
-                                    );
-                                    // update info
-                                    info.content = action.status.clone();
-                                    info.mode = InfoMode::Status;
-                                    selected = Selectable::FileList;
-                                    // clear the selected elements
-                                    filelist.selected = Vec::new();
-                                }
+            Selectable::Search => match search.mode {
+                SearchMode::Input(v) => match event {
+                    // run the current action
+                    Event::Key(Key::Char('\n')) => {
+                        match v {
+                            Input::Rename => {
+                                action.rename(
+                                    filelist.get_current_selected(),
+                                    search.get_content(),
+                                );
+                                // update info
+                                info.content = action.status.clone();
+                                info.mode = InfoMode::Status;
+                                // clear the selected elements
+                                filelist.selected = Vec::new();
+                            }
 
-                                Input::Command => {
-                                    // run the command
-                                    action.run_cmd(info.get_content());
-                                    // update info
-                                    info.content = action.status.clone();
-                                    info.mode = InfoMode::Status;
-                                    selected = Selectable::FileList;
-                                    // clear the selected elements
-                                    filelist.selected = Vec::new();
-                                }
+                            Input::Command => {
+                                // run the command
+                                action.run_cmd(search.get_content());
+                                // update info
+                                info.content = action.status.clone();
+                                info.mode = InfoMode::Status;
+                                // clear the selected elements
+                                filelist.selected = Vec::new();
+                            }
+
+                            Input::Search => {
+                                filelist.scroll_top();
+                                // set the key and 
+                                filelist.key = search.items();
                             }
                         }
+                        // clear the search and select the filelist
+                        search.clear();
+                        selected = Selectable::FileList;
+                    }
 
-                        // add the current selected files name
-                        Event::Key(Key::Char('\t')) => {
-                            info.add(filelist.get_current_selected());
+                    // add the current selected files name
+                    Event::Key(Key::Char('\t')) => {
+                        match v {
+                            Input::Search => {},
+                            _ => search.add(filelist.get_current_selected())
                         }
+                    }
 
-                        // add the char to the string
-                        Event::Key(Key::Char(c)) => {
-                            info.add(c.to_string());
+                    // add the char to the string
+                    Event::Key(Key::Char(c)) => {
+                        search.add(c.to_string());
+                        if let Input::Search = v {
+                            filelist.scroll_top();
+                            filelist.key = search.items();
                         }
+                    }
 
-                        // exit search mode
-                        Event::Key(Key::Esc) => {
-                            // clear info
-                            info.clear();
-                            info.mode = InfoMode::Information;
-                            selected = Selectable::FileList;
+                    // exit search mode
+                    Event::Key(Key::Esc) => {
+                        // clear info
+                        search.clear();
+                        selected = Selectable::FileList;
+                        if let Input::Search = v {
+                            filelist.sort_style = SortStyles::Normal;
                         }
+                    }
 
-                        // remove last char
-                        Event::Key(Key::Backspace) => {
-                            info.delete();
+                    // remove last char
+                    Event::Key(Key::Backspace) => {
+                        search.delete();
+                        if let Input::Search = v {
+                            filelist.scroll_top();
+                            filelist.key = search.items();
                         }
-
-                        _ => {}
-                    },
-
-                    InfoMode::Confirm(v) => match event {
-                        // sort the files -> end the search input
-                        Event::Key(Key::Char('y')) => {
-                            match v {
-                                Confirm::Delete => {
-                                    // delete the file
-                                    action.delete(
-                                        filelist.selected.clone(),
-                                        filelist.get_current_selected(),
-                                    );
-                                    // update info
-                                    info.content = action.status.clone();
-                                    info.mode = InfoMode::Status;
-                                    selected = Selectable::FileList;
-                                    // scroll to the top of the filelist
-                                    filelist.scroll_top();
-                                    filelist.selected = Vec::new();
-                                }
-                            }
-                        }
-
-                        // exit search mode
-                        Event::Key(Key::Esc) | Event::Key(Key::Char('n')) => {
-                            // clear the info
-                            info.clear();
-                            info.mode = InfoMode::Information;
-                            selected = Selectable::FileList;
-                        }
-
-                        _ => {}
-                    },
+                    }
 
                     _ => {}
-                }
-            }
+                },
 
-            Selectable::Search => match event {
-                // sort the files -> end the search input
-                Event::Key(Key::Char('\n')) => {
-                    filelist.scroll_top();
-                    // set the key and sort style
-                    filelist.key = search.items();
-                    selected = Selectable::FileList;
-                }
+                SearchMode::Confirm(v) => match event {
+                    // sort the files -> end the search input
+                    Event::Key(Key::Char('y')) => {
+                        match v {
+                            Confirm::Delete => {
+                                // delete the file
+                                action.delete(
+                                    filelist.selected.clone(),
+                                    filelist.get_current_selected(),
+                                );
+                                // update info
+                                info.content = action.status.clone();
+                                info.mode = InfoMode::Status;
+                                selected = Selectable::FileList;
+                                // scroll to the top of the filelist
+                                filelist.scroll_top();
+                                filelist.selected = Vec::new();
+                            }
+                        }
+                    }
 
-                // add the char to the string
-                Event::Key(Key::Char(c)) => {
-                    search.add(c.to_string());
-                    filelist.key = search.items();
-                    filelist.scroll_top();
-                }
+                    // exit search mode
+                    Event::Key(Key::Esc) | Event::Key(Key::Char('n')) => {
+                        // clear the info
+                        search.clear();
+                        info.mode = InfoMode::Information;
+                        selected = Selectable::FileList;
+                    }
 
-                // exit search mode
-                Event::Key(Key::Esc) => {
-                    search.clear();
-                    filelist.sort_style = SortStyles::Normal;
-                    selected = Selectable::FileList;
-                }
-
-                // remove last char
-                Event::Key(Key::Backspace) => {
-                    search.delete();
-                    filelist.scroll_top();
-                    filelist.key = search.items();
-                }
+                    _ => {}
+                },
 
                 _ => {}
+
             },
 
             Selectable::FileList => match event {
@@ -382,10 +334,10 @@ fn rufm() {
                 // delete the file / directory
                 Event::Key(Key::Char(c)) if c == key_delete => {
                     // update the info graph
-                    info.content = "Really? (y/n)".to_string();
-                    info.mode = InfoMode::Confirm(Confirm::Delete);
+                    search.content = "Really? (y/n)".to_string();
+                    search.mode = SearchMode::Confirm(Confirm::Delete);
                     // change selected field
-                    selected = Selectable::Info;
+                    selected = Selectable::Search;
                 }
 
                 // copy the file / directory
@@ -410,10 +362,10 @@ fn rufm() {
                 // rename the file / directory
                 Event::Key(Key::Char(c)) if c == key_rename => {
                     // update info
-                    info.clear();
+                    search.clear();
                     // change selected field
-                    selected = Selectable::Info;
-                    info.mode = InfoMode::Input(Input::Rename);
+                    selected = Selectable::Search;
+                    search.mode = SearchMode::Input(Input::Rename);
                 }
 
                 // toggle sorting
@@ -432,10 +384,10 @@ fn rufm() {
                 // allows you to run shell commands
                 Event::Key(Key::Char(c)) if c == key_command => {
                     // update info
-                    info.clear();
+                    search.clear();
                     // change selected field
-                    selected = Selectable::Info;
-                    info.mode = InfoMode::Input(Input::Command);
+                    selected = Selectable::Search;
+                    search.mode = SearchMode::Input(Input::Command);
                 }
 
                 // open the selected file / directory
@@ -447,7 +399,7 @@ fn rufm() {
                         info.mode = InfoMode::Status;
                     } else {
                         // when the file
-                        // gets closed, hide the cursor again
+                        // gets closed, hide the cursor
                         // for some reason it appears again
                         terminal.hide_cursor().expect("Could not hide the cursor!");
                     }

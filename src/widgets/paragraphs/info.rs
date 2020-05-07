@@ -5,26 +5,11 @@ use std::{collections::HashMap, fs, os::unix::fs::MetadataExt};
 
 use tui::style::{Color, Style};
 
-// actions which need some kind of
-// input of confirmation, so I have
-// to know, which action I have to execute afterwards
-#[derive(Copy, Clone)]
-pub enum Input {
-    Rename,
-    Command,
-}
-
-#[derive(Copy, Clone)]
-pub enum Confirm {
-    Delete,
-}
-
+// possible information modes
 #[derive(Clone)]
 pub enum InfoMode {
     Status,
     Information,
-    Input(Input),
-    Confirm(Confirm),
 }
 
 pub struct Info {
@@ -95,17 +80,15 @@ impl Info {
                     let len = md.size();
                     let file_permission = Info::get_permissions(md);
                     // update the content var
-                    self.content = format!("{} {:>6}B", file_permission, len);
+                    // the string gets split at the tab
+                    self.content = format!("\n{}\t\n{:>6}B", file_permission, len);
                 }
 
                 Err(_) => {
                     self.content = "No information avaible!".to_string();
                 }
             },
-
             InfoMode::Status => self.mode = InfoMode::Information,
-
-            _ => {}
         }
     }
 
@@ -116,14 +99,7 @@ impl Info {
         // spaces just look cooler
         let output = match self.mode {
             InfoMode::Status => " Status ",
-            InfoMode::Information => " Info ",
-            InfoMode::Input(v) => match v {
-                Input::Rename => " Rename ",
-                Input::Command => " Command ",
-            },
-            InfoMode::Confirm(v) => match v {
-                Confirm::Delete => " Delete ",
-            },
+            InfoMode::Information => " Info "
         };
         output
     }
@@ -131,18 +107,6 @@ impl Info {
 
 impl CustomParagraph for Info {
     fn items(&self) -> String {
-        self.content.clone()
-    }
-}
-
-impl EditableParagraph for Info {
-    // cuts off the explanation
-    // like a special char or a word like "Name: " at the beginning
-    fn get_content(&self) -> String {
-        self.content.clone()
-    }
-
-    fn set_content(&mut self, new: String) {
-        self.content = new;
+        self.content.clone() 
     }
 }
