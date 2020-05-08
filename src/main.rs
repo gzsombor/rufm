@@ -262,6 +262,8 @@ fn rufm() {
                                 info.content = action.status.clone();
                                 info.mode = InfoMode::Status;
                                 selected = Selectable::FileList;
+                                // clear the search
+                                search.clear();
                                 // scroll to the top of the filelist
                                 filelist.scroll_top();
                                 filelist.selected = Vec::new();

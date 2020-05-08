@@ -132,9 +132,12 @@ impl Action {
 
                 // copy normaly if its a file
                 // else recursively
-                if path.is_file() && copy(c.clone(), &filename).is_err() {
-                    self.status = "Failed!".to_string();
-                    return;
+                if path.is_file() {
+                    // check if successfull
+                    if copy(c.clone(), &filename).is_err() {
+                        self.status = "Failed!".to_string();
+                        return;
+                    }
                 } else {
                     self.copy_recursively(c, filename.clone());
                 }
