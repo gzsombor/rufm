@@ -110,15 +110,16 @@ impl CustomParagraph for Info {
         // check if there is a tab
         // so it can be splitted and then there are
         // two elements
-        let length = self.content
-            .split('\n').collect::<Vec<&str>>().len();
+        // let length = self.content
+        //     .split('\n').collect::<Vec<&str>>().len();
         // add a tab
         // else return the
         // nonmodified string
-        let output = match length {
-            1 => format!("{}\t", self.content),
-            _ => self.content.clone()
-        };
-        output
+        // let output = match length {
+        //     1 => format!("{}\t", self.content),
+        //     _ => self.content.clone()
+        // };
+        // output
+        self.content.clone()
     }
 }

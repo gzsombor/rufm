@@ -97,25 +97,44 @@ pub fn draw<B: Backend>(
                 .wrap(true);
 
             // info paragraph
-            let info_display_perm = &info.display()[0];
-            let info_display_size = &info.display()[1];
-            let info_pgraph_perm = Paragraph::new(info_display_perm.iter())
-                .block(
-                    Block::default().borders(Borders::TOP | Borders::LEFT | Borders::BOTTOM)
-                        .title(info.get_title())
-                        .border_style(info.border_style),
-                )
-                .style(Style::default().fg(Color::White))
-                .alignment(Alignment::Left)
-                .wrap(true);
-            let info_pgraph_size = Paragraph::new(info_display_size.iter())
-                .block(
-                    Block::default().borders(Borders::TOP | Borders::RIGHT | Borders::BOTTOM)
-                        .border_style(info.border_style),
-                )
-                .style(Style::default().fg(Color::White))
-                .alignment(Alignment::Right)
-                .wrap(true);
+            // if the len of the elements is 1
+            // use the whole chunk
+            // else use the splitted chunk
+            let info_display = info.display();
+            if &info_display.len() == &1 {
+                let info_pgraph = Paragraph::new(info_display[0].iter())
+                    .block(
+                        Block::default().borders(Borders::ALL)
+                            .title(info.get_title())
+                            .border_style(info.border_style),
+                    )
+                    .style(Style::default().fg(Color::White))
+                    .alignment(Alignment::Left)
+                    .wrap(true);
+                // render the widget
+                f.render_widget(info_pgraph, chunks_top[1]);
+            } else {
+                let info_pgraph_perm = Paragraph::new(info_display[0].iter())
+                    .block(
+                        Block::default().borders(Borders::TOP | Borders::LEFT | Borders::BOTTOM)
+                            .title(info.get_title())
+                            .border_style(info.border_style),
+                    )
+                    .style(Style::default().fg(Color::White))
+                    .alignment(Alignment::Left)
+                    .wrap(true);
+                let info_pgraph_size = Paragraph::new(info_display[1].iter())
+                    .block(
+                        Block::default().borders(Borders::TOP | Borders::RIGHT | Borders::BOTTOM)
+                            .border_style(info.border_style),
+                    )
+                    .style(Style::default().fg(Color::White))
+                    .alignment(Alignment::Right)
+                    .wrap(true);
+                // render the widgets
+                f.render_widget(info_pgraph_perm, chunks_top_right[0]);
+                f.render_widget(info_pgraph_size, chunks_top_right[1]);
+            }
 
             // create the lists
             let cwd = current_dir().expect("Could not get the cwd!");
@@ -190,8 +209,6 @@ pub fn draw<B: Backend>(
 
             // render all elements in their chunk
             f.render_widget(search_pgraph, chunks_top[0]);
-            f.render_widget(info_pgraph_perm, chunks_top_right[0]);
-            f.render_widget(info_pgraph_size, chunks_top_right[1]);
             f.render_stateful_widget(file_list, chunks_bottom[0], &mut file_list_state);
 
             f.render_widget(preview_pgraph, chunks_bottom_right[0]);
