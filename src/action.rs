@@ -69,7 +69,7 @@ impl Action {
         let content = Action::get_dir(target.clone());
         // create the directory to copy to
         if create_dir(name.clone()).is_err() {
-            self.status = format!("Could not create directory {}!", name.clone());
+            self.status = "Failed!".to_string();
             return;
         }
 
@@ -93,7 +93,7 @@ impl Action {
                 let from = format!("{}/{}", target, c_name);
                 let to = format!("{}/{}", name, c_name);
                 if copy(from.clone(), to.clone()).is_err() {
-                    self.status = format!("Could not copy {}!", from);
+                    self.status = "Failed!".to_string();
                     return;
                 }
             }
@@ -109,7 +109,7 @@ impl Action {
         // if it isn't already in the list
         self.clipboard = Action::add_if_not_found(self.clipboard.clone(), name);
         // update the status
-        self.status = "Copied selected items!".to_string();
+        self.status = "Copied!".to_string();
     }
 
     // pastes the clipboard to current location
@@ -124,7 +124,7 @@ impl Action {
             // check if the file / directory in the clipboard exists
             let path = Path::new(&c);
             if !path.exists() {
-                self.status = "Copied file does not exist anymore!".to_string();
+                self.status = format!("Not found\t{}", path.display());
                 return;
             } else {
                 // get the filename
@@ -133,7 +133,7 @@ impl Action {
                 // copy normaly if its a file
                 // else recursively
                 if path.is_file() && copy(c.clone(), &filename).is_err() {
-                    self.status = "Could not copy the file / directory!".to_string();
+                    self.status = "Failed!".to_string();
                     return;
                 } else {
                     self.copy_recursively(c, filename.clone());
@@ -174,16 +174,16 @@ impl Action {
             // remove it
             if path.is_dir() {
                 if remove_dir_all(path).is_err() { 
-                    self.status = format!("Failed to delete {}!", path.display());
+                    self.status = "Failed!".to_string();
                     return;
                 }
             } else if remove_file(path).is_err() {
-                self.status = format!("Failed to delete {}!", path.display());
+                self.status = "Failed!".to_string();
                 return;
             }
         }
         // update the status
-        self.status = "Deleted selected elements!".to_string();
+        self.status = "Deleted files!".to_string();
     }
 
     // renames the element
@@ -191,8 +191,8 @@ impl Action {
         // try to rename the file
         self.status = match rename(name.clone(), new.clone()) {
             // update the status accordingly
-            Ok(_) => format!("Renamed {} to {}!", name, new),
-            Err(_) => format!("Could not rename {} to {}!", name, new),
+            Ok(_) => format!("New name\t{}", name),
+            Err(_) => "Failed!".to_string()
         }
     }
 
@@ -221,9 +221,9 @@ impl Action {
                 // check if command returned output
                 let output = str::from_utf8(&v.stdout).expect("Could not decode terminal output!");
                 if output == "" {
-                    "Success => no output".to_string()
+                    "Success =>\tno output".to_string()
                 } else {
-                    format!("Success => {}", output)
+                    format!("Success =>\t{}", output)
                 }
             }
             Err(_) => "Command failed!".to_string(),

@@ -1,2 +1,1 @@
-Program crashes when entering search.
-It has to be something with the info that got changed ...
+Split the info when displaying information, use it to it's full when displaying the status of an action.
