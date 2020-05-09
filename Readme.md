@@ -96,7 +96,7 @@ Also, if you switch the directories the selection is gonna get deleted. So you d
 To paste files or directories use **P**. Consider that the copied files or directories must exist.
 To rename files or directories use **R**. This is gonna ask you for the new name. If you press tab it's automatically going to fill in the name of the selected element.
 
-In the future I want to work on sorting files. Unfortunately for now your left with two sorting styles. One sorts after length, the other one uses the normal sorting provided by the rust std crate. To switch between them you can use the **tab**.
+If you want to sort your files your left with three sorting styles. One sorts after length, another after the alphabet and the last one doesn't sort at all. To switch between them you can use the **tab**.
 
 **Enter** opens the currently selected file or directory. By default this is going to use your $EDITOR + filename.
 
@@ -107,12 +107,12 @@ To search for files or directories in the current working directory use **/**.
 Of course you can run shell commands as well. Use **:** to run a shell command. If you use tab, the same as in renaming happens.
 Note that this is not going to spawn the command. It's only collecting the output. So you won't be able to open vim for example in the same terminal.
 
-### Favourites-list
+### Favourites list
 
-To navigate use the same keys as in the file-list.
-Enter switches to the selected favourite path and back to the file-list.
+To navigate use the same keys as in the file list.
+Enter switches to the selected favourite path and back to the file list.
 
-### Search-tab
+### Search tab
 
 Enter applies the search and switches back to the file-list.
 
