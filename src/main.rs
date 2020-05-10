@@ -293,6 +293,7 @@ fn rufm() {
                 // activate searching mode
                 Event::Key(Key::Char(c)) if c == key_search => {
                     selected = Selectable::Search;
+                    search.mode = SearchMode::Input(Input::Search);
                     // set the sorting style to search
                     filelist.sort_style = SortStyles::Search;
                     search.clear();
