@@ -172,32 +172,6 @@ impl FileList {
         }
     }
 
-    // return the list of files with the selected files colored
-    pub fn display(&self) -> Vec<String> {
-        let mut selected_content = Vec::new();
-        // loop through all files and add to the ones
-        // in the selected list
-        for s in self.content.clone() {
-            match self.selected.clone().iter().find(|&x| {
-                let name = Path::new(&x).file_name().unwrap().to_str().unwrap();
-                name == s.as_str()
-            }) {
-                // if found, add (selected) to it
-                Some(_) => {
-                    // create the new text
-                    let selected_text = format!("{} (selected)", s);
-                    // add element to vec
-                    selected_content.push(selected_text);
-                } // dont add something
-                None => {
-                    selected_content.push(s);
-                }
-            }
-        }
-
-        selected_content
-    }
-
     // no sorting
     fn sort_default(&mut self) {
         // get the files
@@ -355,6 +329,31 @@ impl FileList {
 impl CustomList for FileList {
     fn get_len(&self) -> usize {
         self.content.len()
+    }
+
+    // return the list of files with the selected files colored
+    fn get_items(&self) -> Vec<String> {
+        let mut selected_content = Vec::new();
+        // loop through all files and add to the ones
+        // in the selected list
+        for s in self.content.clone() {
+            match self.selected.clone().iter().find(|&x| {
+                let name = Path::new(&x).file_name().unwrap().to_str().unwrap();
+                name == s.as_str()
+            }) {
+                // if found, add (selected) to it
+                Some(_) => {
+                    // create the new text
+                    let selected_text = format!("{} (selected)", s);
+                    // add element to vec
+                    selected_content.push(selected_text);
+                } // dont add something
+                None => {
+                    selected_content.push(s);
+                }
+            }
+        }
+        selected_content
     }
 
     fn get_current(&self) -> usize {

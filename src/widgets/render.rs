@@ -5,7 +5,7 @@ use tui::terminal::Terminal;
 
 use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::style::{Color, Modifier, Style};
-use tui::widgets::{Block, Borders, List, ListState, Paragraph, Text};
+use tui::widgets::{Block, Borders, List, ListState, Paragraph};
 
 use super::*;
 
@@ -139,9 +139,9 @@ pub fn draw<B: Backend>(
             // create the lists
             let cwd = current_dir().expect("Could not get the cwd!");
             let file_list_title = format!(" -> {} ", cwd.display());
-            let file_list_items = &filelist.display();
+            let file_list_items = filelist.display().into_iter();
             let mut file_list_state = ListState::default();
-            let mut file_list = List::new(file_list_items.iter().map(|i| Text::raw(i.clone())))
+            let mut file_list = List::new(file_list_items)
                 .block(
                     custom_block
                         .title(file_list_title.as_str())
@@ -164,8 +164,8 @@ pub fn draw<B: Backend>(
 
             // favourites list normal
             // style the selected items
-            let fav_names = favs.names.iter();
-            let mut favourites_list = List::new(fav_names.map(|i| Text::raw(i.clone())))
+            let fav_names = favs.display().into_iter();
+            let mut favourites_list = List::new(fav_names)
                 .block(
                     custom_block
                         .title(" Favourites ")

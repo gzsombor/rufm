@@ -13,8 +13,20 @@ use tui::widgets::Text;
 // scrollable lists
 pub trait CustomList {
     fn get_len(&self) -> usize;
+    fn get_items(&self) -> Vec<String>;
     fn get_current(&self) -> usize;
     fn set_current(&mut self, new: usize);
+
+    // returns the elements in a way
+    // it can be used with a List
+    fn display(&self) -> Vec<Text> {
+        // get the elements
+        let elements = self.get_items();
+        // convert all strings to a text::raw object
+        let vector: Vec<Text> = elements.iter()
+            .map(|i| Text::raw(i)).collect();
+        vector.clone()
+    }
 
     // scrolls up in the list
     fn scroll_up(&mut self) {

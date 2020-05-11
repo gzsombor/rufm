@@ -43,6 +43,10 @@ impl CustomList for Favourites {
         self.names.len()
     }
 
+    fn get_items(&self) -> Vec<String> {
+        self.names.clone()
+    }
+
     fn get_current(&self) -> usize {
         self.current
     }
