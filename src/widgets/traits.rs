@@ -20,12 +20,12 @@ pub trait CustomList {
     // returns the elements in a way
     // it can be used with a List
     fn display(&self) -> Vec<Text> {
-        // get the elements
+        // get the elements and
         let elements = self.get_items();
         // convert all strings to a text::raw object
-        let vector: Vec<Text> = elements.iter()
-            .map(|i| Text::raw(i)).collect();
-        vector.clone()
+        elements.iter()
+            .map(|i| Text::raw(i.clone()))
+            .collect::<Vec<Text>>()
     }
 
     // scrolls up in the list
