@@ -4,7 +4,7 @@
 Rufm is a file manager written in rust with a responsive terminal user interface (tui) and basic functionality for linux.
 It probably works on MacOSX as well, but I haven't tested it yet. If you tried it, let me know if it works for you.
 
-![Rufm preview](images/preview.png "Preview")
+![Rufm preview](images/preview.png "Small preview of the application")
 
 #
 ## Content
