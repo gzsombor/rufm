@@ -1,5 +1,6 @@
-// use from othef files
+// use from other files
 use super::*;
+use crate::cmd::Options;
 
 // use to read the file
 use std::{env::var, fmt::Display, fs::File, io::prelude::Read, process::exit};
@@ -171,25 +172,31 @@ impl ConfigOpt {
 fn report<T: Display>(error: T) {
     // print a newline at the beginning and at the end
     println!(
-        "
+"
 There is an error in the configuration file:
 {}
-",
-        error
-    );
+"
+    , error);
 }
 
 // reads from the config file at filename and
 // parse the value in the optional struct, afterwards
 // it parse the optional values to normal values while substituting
 // defualts for None values
-pub fn create_config(filename: String) -> Config {
+pub fn create_config(options: &Options) -> Config {
     // read from the file
     let mut content = String::new();
     // get the home directory
     let home = var("HOME").expect("Could not get $HOME!");
-    let filename = filename.replace("~", home.as_str());
+    let filename = match &options.config {
+        // use the inputted filename
+        Some(path) => path.replace("~", home.as_str()),
+        // use the default one
+        None => format!("{}/.config/rufm/config.ini", home),
+    };
 
+    // open the file and check if it exists
+    let mut config: Config;
     match File::open(&filename) {
         Ok(v) => {
             // if it exists, assign it
@@ -199,18 +206,16 @@ pub fn create_config(filename: String) -> Config {
                 report(format!("Could not read the config file at {}!", filename));
                 exit(1);
             }
-
             // parse the variable to the Config struct
-            let config: ConfigOpt = match toml::from_str(&content) {
+            let opt: ConfigOpt = match toml::from_str(&content) {
                 Ok(v) => v,
                 Err(_) => {
                     report("Could not parse toml!");
                     exit(1);
                 }
             };
-
-            let mut config = config.parse();
-
+            // remove all the optional values 
+            config = opt.parse();
             // replace all ~ with $HOME var
             config.favourites.paths = config
                 .favourites
@@ -218,15 +223,11 @@ pub fn create_config(filename: String) -> Config {
                 .iter()
                 .map(|x| x.replace("~", home.as_str()))
                 .collect();
-
-            config
         }
-
         Err(_) => {
             // use the default config
-            let config = ConfigOpt::default();
-            // return the modified one
-            config.parse()
+            config = ConfigOpt::default().parse();
         }
     }
+    config
 }

@@ -6,9 +6,6 @@ mod widgets;
 // Write
 use std::io::{stdin, stdout};
 
-// gets the cwd
-use std::env::current_dir;
-
 // widgets
 use widgets::{
     // functions
@@ -56,12 +53,14 @@ fn rufm() {
     let mut options = Options::new();
     options.eval();
     // create configuration
-    let config = create_config(options.config.clone());
+    let config = create_config(&options);
 
     // function to get the first char
     let get_keybind = |key: String, name: &str| {
         // get the chars
-        key.chars().next()
+        key
+            .chars()
+            .next()
             .expect(format!("Keybinding ({}) not a single character!", name).as_str())
     };
 
@@ -86,54 +85,23 @@ fn rufm() {
         config.favourites.paths.clone(),
     );
     let mut info = widgets::Info::new(config.borders.info);
+
     // current selected element
     let mut selected = Selectable::FileList;
     // actions
     let mut action = Action::new();
-
     // creating the terminal
-    let stdout = stdout()
-        .into_raw_mode()
-        .expect("Could not draw to the terminal!");
+    let stdout = stdout().into_raw_mode().expect("Could not draw to the terminal!");
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend).expect("Could not draw to the terminal!");
     // hide the cursor
     terminal
         .hide_cursor()
         .expect("Could not draw to the terminal!");
-
     // get the keyboard input
     let mut events = stdin().events();
-
-    // startup notif, only if enabled
-    if config.other.startup_info {
-        println!("\nConfiguration: {}", options.config);
-        // move the cursor to the next line
-        let cursor_pos = terminal.get_cursor().unwrap().1;
-        terminal
-            .set_cursor(0, cursor_pos)
-            .expect("Could not move cursor. Please disable the startup_info!");
-        println!(
-            "Working directory: {}",
-            current_dir().expect("Could not get cwd!").display()
-        );
-        // move the cursor to the next line
-        let cursor_pos = terminal.get_cursor().unwrap().1;
-        terminal
-            .set_cursor(0, cursor_pos)
-            .expect("Could not move cursor. Please disable the startup_info!");
-        println!("Press any key to start ...");
-
-        // wait for the event to start the file manager
-        let _ = events.next();
-    }
-
     // clear the terminal
     terminal.clear().expect("Could not clear the terminal!");
-
-    // some function I'm gonna use a lot
-    // as closures, so they can access all variables
-    // ... not yet implemented
 
     // loop through keyboard inputs
     loop {

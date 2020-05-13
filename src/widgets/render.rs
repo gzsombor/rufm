@@ -137,8 +137,18 @@ pub fn draw<B: Backend>(
             }
 
             // create the lists
-            let cwd = current_dir().expect("Could not get the cwd!");
-            let file_list_title = format!(" -> {} ", cwd.display());
+            // get the current working path
+            let cwd = current_dir()
+                .expect("Could not get the cwd!")
+                .to_str().expect("Could not convert to str!")
+                .to_string();
+            // split the path
+            let cwd = cwd.split('/')
+                .collect::<Vec<&str>>();
+            // select only the last two items
+            let cwd = cwd[(cwd.len() - 2)..cwd.len()].join("/");
+            // create the title and items for the list
+            let file_list_title = format!(" -> {} ", cwd);
             let file_list_items = filelist.display().into_iter();
             let mut file_list_state = ListState::default();
             let mut file_list = List::new(file_list_items)

@@ -1,11 +1,16 @@
 // cmd line arguments
+// every arguments gets handled by
+// the eval method and return a bool
+// this bool indicated is the program should
+// exit or continue
 use std::env::{args, set_current_dir};
 
 use std::path::Path;
 use std::process::exit;
 
+// possible cmdline options
 pub struct Options {
-    pub config: String,
+    pub config: Option<String>,
 }
 
 impl Options {
@@ -13,16 +18,14 @@ impl Options {
     pub fn new() -> Self {
         Self {
             // default path
-            config: "~/.config/rufm/config.ini".to_string(),
+            config: None,
         }
     }
-
     // evaluate cmd arguments
     pub fn eval(&mut self) {
         // get the cmd arguments
         let args: Vec<String> = args().collect();
         let mut args = args[1..].iter();
-
         // match arguments
         // and execute function
         loop {
@@ -63,7 +66,8 @@ impl Options {
 
     // help menu
     fn help(&self, failmsg: Option<&str>) -> bool {
-        let help_menu = String::from("
+        let help_menu = String::from(
+"
 Rufm - A file manager written in Rust
 -------------------------------------
 
@@ -71,9 +75,9 @@ Usage:
     rufm [options]
 
 Options:
-    -h | --help                 display this help menu
-    -d | --directory <path>     change the directory to <path>
-    -c | --config <path>        use the config file at <path>
+    -h or --help                 display this help menu
+    -d or --directory <path>     change the directory to <path>
+    -c or --config <path>        use the config file at <path>
 "
         );
         // check if a fail message
@@ -93,14 +97,14 @@ Options:
             println!("Could not change to {}, aborting ...", target);
             return true
         }
-        return false
+        false
     }
 
     // sets new path for config file
     fn config(&mut self, target: String) -> bool {
         let p = Path::new(&target);
         if p.is_file() {
-            self.config = target;
+            self.config = Some(target);
             false
         } else {
             println!("No such file: {}", target);
