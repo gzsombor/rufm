@@ -119,7 +119,7 @@ The shortcuts differ from eachother, but some are always the same. For example:
 |cd to dir        |enter            |:x:               |
 |switch to files  |esc              |:x:               |
 |                 |                 |                  |
-|quit             |esc              |:x:               |
+|quit             |q                |:x:               |
 
 ### Search tab
 
