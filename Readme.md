@@ -223,9 +223,9 @@ If you have suggestions or if you'd like to contribute, let me know through an i
 ## Dependencies
 
 To draw the tui I used:
-- tui-rs => https://github.com/fdehau/tui-rs
-- termion => https://github.com/redox-os/termion
+- [tui-rs](https://github.com/fdehau/tui-rs)
+- [termion](https://github.com/redox-os/termion)
 
 To read from the configuration file I used:
-- toml => https://github.com/alexcrichton/toml-rs
-- serde and serde_derive => https://github.com/serde-rs/serde
+- [toml](https://github.com/alexcrichton/toml-rs)
+- [serde and serde_derive](https://github.com/serde-rs/serde)
