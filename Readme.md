@@ -83,10 +83,10 @@ The shortcuts differ from eachother, but some are always the same. For example:
 
 |Action           |Key              |Remapping         |
 |:---------------:|:---------------:|:----------------:|
-|move up          |k / :arrow_up:   |:x:               |
-|move down        |j / :arrow_down: |:x:               |
-|move left        |h / :arrow_left: |:x:               |
-|move right       |l / :arrow_right:|:x:               |
+|up               |k / :arrow_up:   |:x:               |
+|down             |j / :arrow_down: |:x:               |
+|left             |h / :arrow_left: |:x:               |
+|right            |l / :arrow_right:|:x:               |
 |                 |                 |                  |
 |select/deselect  |space            |:white_check_mark:|
 |                 |                 |                  |
@@ -111,10 +111,10 @@ The shortcuts differ from eachother, but some are always the same. For example:
 
 |Action           |Key              |Remapping         |
 |:---------------:|:---------------:|:----------------:|
-|move up          |k / :arrow_up:   |:x:               |
-|move down        |j / :arrow_down: |:x:               |
-|move left        |h / :arrow_left: |:x:               |
-|move right       |l / :arrow_right:|:x:               |
+|up               |k / :arrow_up:   |:x:               |
+|down             |j / :arrow_down: |:x:               |
+|left             |h / :arrow_left: |:x:               |
+|right            |l / :arrow_right:|:x:               |
 |                 |                 |                  |
 |cd to dir        |enter            |:x:               |
 |switch to files  |esc              |:x:               |
