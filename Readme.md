@@ -75,46 +75,58 @@ rufm --help
 
 ### General
 
-Because rufm is based on a terminal user interface you can only navigate while using keyboard shortcuts. In a nutshell, capital letters stand for actions, non-capital letters for navigation. The layout consist of 5 elements. The search-tab, the info-tab, a file-list, a favourites-list and a preview-paragraph.
+Because rufm is based on a terminal user interface you can only navigate while using keyboard shortcuts. In a nutshell, capital letters stand for actions, non-capital letters for navigation. The layout consist of 5 elements. The search tab, the info tab, a file list, a favourites list and a preview paragraph.
 The shortcuts differ from eachother, but some are always the same. For example:
 
-Esc always switches back to the file-list.
-q quits the app.
 
-### File-list
+### File list
 
-In the file-list you can navigate with the **vim keys (h, j, k, l)** or with **the four arrow keys**.
-The left arrow key / h switches one directory back, the right arrow key / l into the selected directory.
-Of course this isn't all.
+|Action           |Key              |Remapping         |
+|:---------------:|:---------------:|:----------------:|
+|move up          |k / :arrow_up:   |:x:               |
+|move down        |j / :arrow_down: |:x:               |
+|move left        |h / :arrow_left: |:x:               |
+|move right       |l / :arrow_right:|:x:               |
+|                 |                 |                  |
+|select/deselect  |space            |:white_check_mark:|
+|                 |                 |                  |
+|copy files       |C                |:white_check_mark:|
+|paste files      |P                |:white_check_mark:|
+|delete files     |D                |:white_check_mark:|
+|                 |                 |                  |
+|rename file      |R                |:white_check_mark:|
+|                 |                 |                  |
+|sort             |tab              |:white_check_mark:|
+|open file        |enter            |:x:               |
+|                 |                 |                  |
+|switch to favs   |F                |:white_check_mark:|
+|search file      |/                |:white_check_mark:|
+|run shell cmd    |:                |:white_check_mark:|
+|                 |                 |                  |
+|quit             |q                |:x:               |
 
-To delete files or directories recursively use **D**. Afterwards your are asked for a confirmation with y or n / esc.
-To copy files or directories use **C**. This only saves the paths in the clipboard. So you shouldn't delete them.
-If you'd like to copy / delete multiple files or directories you can use **space** to select / deselect files or directories.
-Note that copy and delete are going to use your selected one + the one you are currently on with your 'cursor'.
-Also, if you switch the directories the selection is gonna get deleted. So you don't accidentaly delete files or directories.
 
-To paste files or directories use **P**. Consider that the copied files or directories must exist.
-To rename files or directories use **R**. This is gonna ask you for the new name. If you press tab it's automatically going to fill in the name of the selected element.
-
-If you want to sort your files your left with three sorting styles. One sorts after length, another after the alphabet and the last one doesn't sort at all. To switch between them you can use the **tab**.
-
-**Enter** opens the currently selected file or directory. By default this is going to use your $EDITOR + filename.
-
-### Switch tabs
-
-If you want to switch to the favouriteslist use **F**.
-To search for files or directories in the current working directory use **/**.
-Of course you can run shell commands as well. Use **:** to run a shell command. If you use tab, the same as in renaming happens.
-Note that this is not going to spawn the command. It's only collecting the output. So you won't be able to open vim for example in the same terminal.
-
+                  
 ### Favourites list
 
-To navigate use the same keys as in the file list.
-Enter switches to the selected favourite path and back to the file list.
+|Action           |Key              |Remapping         |
+|:---------------:|:---------------:|:----------------:|
+|move up          |k / :arrow_up:   |:x:               |
+|move down        |j / :arrow_down: |:x:               |
+|move left        |h / :arrow_left: |:x:               |
+|move right       |l / :arrow_right:|:x:               |
+|                 |                 |                  |
+|cd to dir        |enter            |:x:               |
+|switch to files  |esc              |:x:               |
+|                 |                 |                  |
+|quit             |esc              |:x:               |
 
 ### Search tab
 
-Enter applies the search and switches back to the file-list.
+|Action           |Key              |Remapping         |
+|:---------------:|:---------------:|:----------------:|
+|apply search     |enter            |:x:               |
+|switch to files  |esc              |:x:               |
 
 #
 ## Configuration
