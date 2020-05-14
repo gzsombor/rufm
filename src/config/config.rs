@@ -66,8 +66,8 @@ impl ConfigOpt {
 
     fn favourites(f: Option<&FavouritesOpt>) -> Favourites {
         let default = || Favourites {
-            names: vec!["Root".to_string()],
-            paths: vec!["/".to_string()],
+            names: vec!["Root".to_string(), "Home".to_string()],
+            paths: vec!["/".to_string(), "~".to_string()],
         };
 
         // return default favourites in nothing was specified
@@ -130,14 +130,12 @@ impl ConfigOpt {
             Some(v) => v,
             None => {
                 return Other {
-                    startup_info: false,
                     open_cmd: "$EDITOR".to_string(),
                 }
             }
         };
 
         Other {
-            startup_info: other.startup_info.clone().unwrap_or(false),
             open_cmd: other.open_cmd.clone().unwrap_or("$EDITOR".to_string()),
         }
     }

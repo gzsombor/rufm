@@ -49,7 +49,6 @@ pub struct HighlightsOpt {
 
 #[derive(Deserialize, Clone)]
 pub struct OtherOpt {
-    pub startup_info: Option<bool>,
     pub open_cmd: Option<String>,
 }
 
@@ -110,6 +109,5 @@ pub struct Highlights {
 
 #[derive(Deserialize)]
 pub struct Other {
-    pub startup_info: bool,
     pub open_cmd: String,
 }
