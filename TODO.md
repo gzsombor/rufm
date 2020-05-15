@@ -29,7 +29,7 @@ Nothing urgent at the moment!
 
 ### General
 
-- [ ] Add long shortcuts.
+- [ ] Add long shortcuts. (in work on branch doubleshortcuts)
     - E.q. cc instead of C for copying ...
     - Could be achieved with saving the key if no action was found. 
     - After that append the key to the new input and check again.
