@@ -199,8 +199,6 @@ command = ":"
 
 ## other stuff
 [other]
-##  basic information on startup
-# startup_info = true
 ## cmd that opens the selected file
 ## if commented out, the $EDITOR is used + filename
 ## else the open_cmd + filename
