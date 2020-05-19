@@ -56,12 +56,10 @@ To use rufm just type "rufm" into the terminal and it should start (only if you 
 
 You can use flags to change the behaviour.
 If you want to use a custom path for your configuration file, use "-c".
-Example: use the configuration file located at currentworkingdirectory/config/config.ini
 ``` bash
 rufm -c config/config.ini
 ```
 If you want to start rufm in a different directory, use "-d".
-Example: start rufm in your home directory
 ``` bash
 rufm -d ~
 ```
